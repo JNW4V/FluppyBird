@@ -1,5 +1,3 @@
-// fluppybirdMovement.cpp : Este archivo contiene la función "main". La ejecución del programa comienza y termina ahí.
-//
 #include <windows.h>
 #include <iostream>
 #include <conio.h>
@@ -16,6 +14,7 @@ void showImage(char image[][width], int pos[][width][2]);
 void changePos(int positions[][width][2], char op);
 void mantenerJuego(char image[][width], int positions[][width][2]);
 void newChoosePosition(char& op);
+
 
 int main()
 {
@@ -51,7 +50,7 @@ void changePos(int positions[][width][2], char op) {
         break;
     case 'w':
         pos = 1;
-        k = -1;
+        k = -2  ;
         break;
     case 's':
         pos = 1;
@@ -70,8 +69,8 @@ void changePos(int positions[][width][2], char op) {
 }
 
 void newChoosePosition(char& op) {
-    auto start = std::chrono::high_resolution_clock::now();
-    int timeout_ms = 250;  //Este es el tiempo de espera para que el jugador presione una tecla, esta en milisegundos
+    auto start = chrono::high_resolution_clock::now();
+    int timeout_ms = 300;  //Este es el tiempo de espera para que el jugador presione una tecla
     gotoxy(40, 40);
         cout << "\nOPCIONES: " << endl;
         cout << "a) Izquierda " << endl;
@@ -84,28 +83,27 @@ void newChoosePosition(char& op) {
             if (_kbhit()) {
                 // Lee la tecla para vaciar el buffer
                 op = _getch();
-                std::cout << "Tecla presionada!" << std::endl;
                 if (op == 'a' || op == 'd' || op == 'w' || op == 's' || op == 'q') {
                     return;
                 }
             }
             // Comprueba si ha pasado el tiempo de espera
-            auto now = std::chrono::high_resolution_clock::now();
-            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();
+            auto now = chrono::high_resolution_clock::now();
+            auto duration = chrono::duration_cast<chrono::milliseconds>(now - start).count();
             if (duration >= timeout_ms) {
-                std::cout << "Tiempo agotado!" << std::endl;
-                op = 'z';  //Cualquier valor para que exista caida
+                op = 'z';  //Cualquier valor para que no pase nada
                 return;
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            this_thread::sleep_for(chrono::milliseconds(100));
     }
 }
 void mantenerJuego(char image[][width], int positions[][width][2]) {
     char op;
     do {
+        
         system("cls");
         showImage(image, positions);
-        newchoosePosition(op);
+        newChoosePosition(op);
         changePos(positions, op);
     } while (op != 'q');
 
@@ -123,8 +121,6 @@ void OcultarCursor() {
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_CURSOR_INFO cursorInfo;
     GetConsoleCursorInfo(hConsole, &cursorInfo);
-    cursorInfo.bVisible = FALSE; // Cambia la visibilidad del cursor a FALSE
+    cursorInfo.bVisible = FALSE; 
     SetConsoleCursorInfo(hConsole, &cursorInfo);
 }
-
-
