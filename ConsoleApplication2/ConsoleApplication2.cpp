@@ -12,38 +12,20 @@
 
 using namespace std;
 // -------------------------------------------------------- COSAS DE LA CONSOLA Y SU VISUALIZACION ------------------------------------------------------------------------
-
-void setConsolePosition(int x, int y) {
-	HWND consoleWindow = GetConsoleWindow(); // Obtiene el manejador de la ventana de la consola
-	MoveWindow(consoleWindow, x, y, 800, 600, TRUE); // Mueve y redimensiona la ventana
-}
-
-void setConsoleSize(int ancho, int alto) {
+void OcultarCursor() {
 	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-	COORD newSize{};
-	SMALL_RECT windowSize{};
-
-	// Ajusta el tamaño del buffer
-	newSize.X = ancho;
-	newSize.Y = alto;
-	SetConsoleScreenBufferSize(hConsole, newSize);
-
-	// Ajusta el tamaño de la ventana
-	windowSize.Left = 0;
-	windowSize.Top = 0;
-	windowSize.Right = ancho - 1;
-	windowSize.Bottom = alto - 1;
-	SetConsoleWindowInfo(hConsole, TRUE, &windowSize);
+	CONSOLE_CURSOR_INFO cursorInfo;
+	GetConsoleCursorInfo(hConsole, &cursorInfo);
+	cursorInfo.bVisible = FALSE; // Cambia la visibilidad del cursor a FALSE
+	SetConsoleCursorInfo(hConsole, &cursorInfo);
 }
-
-void setCursorPosition(int x, int y) {
-	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-	COORD coord{};
-	coord.X = x;
-	coord.Y = y;
-	SetConsoleCursorPosition(hConsole, coord);
+void SetConsoleFullScreen() {
+	// Simular Alt + Enter
+	keybd_event(VK_MENU, 0x38, 0, 0);  // Alt down
+	keybd_event(VK_RETURN, 0x1C, 0, 0); // Enter down
+	keybd_event(VK_RETURN, 0x1C, KEYEVENTF_KEYUP, 0); // Enter up
+	keybd_event(VK_MENU, 0x38, KEYEVENTF_KEYUP, 0);  // Alt up
 }
-
 void clearRegion(int x1, int y1, int x2, int y2) {
 	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 	COORD coord{};
@@ -70,51 +52,82 @@ void clearRegion(int x1, int y1, int x2, int y2) {
 // --------------------------------------------------------------------------------------------------------------------------------
 void OcultarCursor();
 void gotoxy(int x, int y);
-void showImage(int pos[][width][2]);
-void changePos(int positions[][width][2], char op);
-void mantenerJuego(int positions[][width][2]);
+void showImage(int pos);
+void changePos(int positions, char op);
+void mantenerJuego(int positions);
 void newchoosePosition(char& op);
-
+void caidaSubidaIncremento(char& op);
 void cuadroMenu();
 void piso();
-void showImage(char image[][width], int pos[][width][2]);
 void presentacion();
-void presentacion1();
 void personaje2();
-void imprimirTubo();
+void imprimirTubo(int posXtub, int posYpos, int tamano, int hueco, int tamano2);
 void gotoxy(int x, int y);
 void setColor(int textColor, int backgroundColor);
-void drawCircle(int centerX, int centerY, int radius, int offsetX, int offsetY, int color, int back); //dibuja las "nubes" de atras
 void titulo(int x, int y);
-void background(int radius, int numCircles);
+void background();
 void play(int a, int radio, int numCirculos, int x, int y);
 void teclas(int b, int radio, int numCirculos, int x, int y);
 void personaje(int c, int radio, int numCirculos, int x, int y);
 
-int main() {
-	setConsolePosition(400, 0); // Posicion de la consola aprox al centro de la pantalla
-	setConsoleSize(100, 49); // Cambia el tamaño de la ventana a 100x49
-	setCursorPosition(0, 0); // Restablece la posición del cursor a (0, 0)
-	int position[][width][2] = { {{5,12},{6,12},{7,2},{8,12},{9,12},{10,12},{11,12},{12,12},{13,12}},{{5,13},{6,13},{7,13},{8,13},{9,13},{10,13},{11,13},{12,13},{13,13}},{{5,14},{6,14},{7,14},{8,14},{9,14},{10,14},{11,14},{12,14},{13,14}} };
+int aparecerTubos(int position[][4][2], int  posicionX, int posicionY, int& contador);
 
-	presentacion();
+int main() {
+	SetConsoleOutputCP(CP_UTF8);
+	int objeto = 0, Punto = 4, XY = 2;
+	/*int position[][width][2] = { {{5,12},{6,12},{7,12},{8,12},{9,12},{10,12},{11,12},{12,12},{13,12}},
+	{{5,13},{6,13},{7,13},{8,13},{9,13},{10,13},{11,13},{12,13},{13,13}},
+	{{5,14},{6,14},{7,14},{8,14},{9,14},{10,14},{11,14},{12,14},{13,14}} };*/
+	int position[10][4][2];
+	position[objeto][0][0] = 5;
+	position[objeto][0][1] = 12;
+	position[objeto][1][0] = 13;
+	position[objeto][1][1] = 12;
+	position[objeto][2][0] = 5;
+	position[objeto][2][1] = 14;
+	position[objeto][3][0] = 13;
+	position[objeto][3][1] = 14;
 	OcultarCursor();
 	mantenerJuego(position);
+
 	return 0;
+
 }
+
+// -------------------------------------------- funciones a utilizar (lo busq en inter)
+void gotoxy(int x, int y) { // posicion para imprimir
+	COORD coord{};
+	coord.X = x;
+	coord.Y = y;
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+}
+
+void setColor(int textColor, int backgroundColor) { // en el recuadro del caracter cambia el color de texto y fondo
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleTextAttribute(hConsole, textColor + (backgroundColor * 16));
+}
+//------------------------------------------------------------------------------------------
+
 void presentacion() {
-	int position[][width][2] = { {{5,12},{6,12},{7,2},{8,12},{9,12},{10,12},{11,12},{12,12},{13,12}},{{5,13},{6,13},{7,13},{8,13},{9,13},{10,13},{11,13},{12,13},{13,13}},{{5,14},{6,14},{7,14},{8,14},{9,14},{10,14},{11,14},{12,14},{13,14}} };
+	int objeto = 0, Punto = 4, XY = 2;
+	int position[10][4][2];
+	position[objeto][0][0] = 5;
+	position[objeto][0][1] = 12;
+	position[objeto][1][0] = 13;
+	position[objeto][1][1] = 12;
+	position[objeto][2][0] = 5;
+	position[objeto][2][1] = 14;
+	position[objeto][3][0] = 13;
+	position[objeto][3][1] = 14;
 	const int radio = 10;
 	const int numCirculos = 6;
-	SetConsoleOutputCP(CP_UTF8);
 	setColor(7, 3);
 	int op, a = 0, b = 0, c = 0; // el a b c es de relleno como ejemplo, no va necesariamente, mas abajo lo utilizo para q funcione la operacion de las opciones, pero nel
 	int x = 8, y = 2;
 	do { // ------------------------------------- MENU en si
 		system("cls");
 		system("color 37");
-		background(radio, numCirculos);
-		imprimirTubo();
+		background();
 		titulo(x, y);
 		cuadroMenu();
 		piso();
@@ -143,92 +156,33 @@ void presentacion() {
 	gotoxy(27, 29);
 }
 
-void presentacion1() {
-	int position[][width][2] = { {{5,12},{6,12},{7,2},{8,12},{9,12},{10,12},{11,12},{12,12},{13,12}},{{5,13},{6,13},{7,13},{8,13},{9,13},{10,13},{11,13},{12,13},{13,13}},{{5,14},{6,14},{7,14},{8,14},{9,14},{10,14},{11,14},{12,14},{13,14}} };
-	const int radio = 10;
-	const int numCirculos = 6;
+void mantenerJuego(int position) {
+	char op;
+	int posicionX = 88, posicionY = 41, contador = 0;
+	system("cls");
+	piso();
+	do {
+		//background();
+		clearRegion(0, 0, 100, 31);
+		showImage(position);
+		newchoosePosition(op);
+		changePos(position, op);
 
-	background(radio, numCirculos);
-	imprimirTubo();
+		position = aparecerTubos(position, posicionX, posicionY, contador);
 
-	SetConsoleOutputCP(CP_UTF8);
-	setColor(7, 3);
-	int a = 0, b = 0, c = 0; // el a b c es de relleno como ejemplo, no va necesariamente, mas abajo lo utilizo para q funcione la operacion de las opciones, pero nel
-	int x = 8, y = 2;
-	gotoxy(27, 29);
-}
-// -------------------------------------------- funciones a utilizar (lo busq en inter)
-void gotoxy(int x, int y) { // posicion para imprimir
-	COORD coord{};
-	coord.X = x;
-	coord.Y = y;
-	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+	} while (op != 'q');
+
 }
 
-void setColor(int textColor, int backgroundColor) { // en el recuadro del caracter cambia el color de texto y fondo
-	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-	SetConsoleTextAttribute(hConsole, textColor + (backgroundColor * 16));
-}
-void nubesBack(int centerX, int centerY, int radius, int offsetX, int offsetY, int color, int back) { // parece elipse pero asi lo dibuja :v
-	setColor(color, back); 
-	for (int y = 1; y <= radius - 5; y++) { // dibuja verticalmente, de la parte de arriba del circulo hasta su centro (solo dibuja la mitad del circulo)
-		for (int x = 0; x <= 2 * radius; x++) { // dibuja horizontamente del extremo izquierdo al derecho por linea (diametro = 2 * radio)
-			int dx = x - radius;
-			int dy = y - radius;
-
-			if (sqrt(dx * dx + dy * dy) <= radius) { // ecuacion de la circunferencia (llegua hasta que sea igual al radio)
-				gotoxy(x + offsetX, y + offsetY);
-				cout << "█";
-			}
-		}
-	}
-}
-void nubesFront(int centerX, int centerY, int radius, int offsetX, int offsetY, int color, int back) { // parece elipse pero asi lo dibuja :v
-	setColor(color, back);
-	for (int y = 1; y <= radius - 7; y++) { // dibuja verticalmente, de la parte de arriba del circulo hasta su centro (solo dibuja la mitad del circulo)
-		for (int x = 0; x <= 2 * radius; x++) { // dibuja horizontamente del extremo izquierdo al derecho por linea (diametro = 2 * radio)
-			int dx = x - radius;
-			int dy = y - radius;
-
-			if (sqrt(dx * dx + dy * dy) <= radius) { // ecuacion de la circunferencia (llegua hasta que sea igual al radio)
-				gotoxy(x + offsetX, y + offsetY);
-				cout << "█";
-			}
-		}
-	}
-}
-// --------------------------------------------
-
-void background(int radius,int numCircles) {
-	clearRegion(0, 0, 100, 41);
+void background() {
 	// nubes de atras
-	for (int k = 0; k < numCircles; k++) { //numero de nubes
-		int offsetX = k * 15; // de 15 en 15 pixeles? :v
-		int offsetY = rand() % 2; // varia aleatoriamente la posicion altura de las nubes
-		int limite1 = 0;
-		if (offsetY == 1) {
-			limite1 = 1;
-		}
-		nubesBack(radius, radius, radius - limite1, offsetX, 36 + offsetY, 7,3); //el 17 le agrege para mover un poco la posicion de la nube en la consola y se ajuste aprox al piso
-	}
-
-	// nubes de adelante
-	for (int k = 0; k < numCircles; k++) { //numero de nubes
-		int offsetX2 = k * 15;
-		int offsetY2 = rand() % 2; // varia aleatoriamente la posicion altura de las nubes
-		int limite2 = 0;
-		if (offsetY2 == 1) {
-			limite2 = 1;
-		}
-		nubesFront(radius, radius, radius - limite2, offsetX2 + 5, 38 + offsetY2, 15,3);  // aca igual con el 5 y 20 segun los ejes claro
-	}
+	cout << "hola" << endl;
 }
 
-void play(int a, int radio, int numCirculos,int x, int y) { // operacion al elegir jugar, pero solo lo agrege para q rellene (aca iria el juego en si)
+void play(int a, int radio, int numCirculos, int x, int y) { // operacion al elegir jugar, pero solo lo agrege para q rellene (aca iria el juego en si)
 	do {
 		// ------------- basicamente hace lo mismo que la funcion principal al iniciar el do while (era q lo agrege todo a una solo funcion y llamarlo en cada opcion)
 		system("color 37");
-		background(radio, numCirculos);
 		titulo(x, y);
 		gotoxy(27, 12);
 		setColor(6, 14);
@@ -242,7 +196,6 @@ void play(int a, int radio, int numCirculos,int x, int y) { // operacion al eleg
 
 void teclas(int b, int radio, int numCirculos, int x, int y) { // operacion de relleno (deberia mostrarse los controles)
 	do {
-		background(radio, numCirculos);
 		titulo(x, y);
 		cuadroMenu();
 		gotoxy(27, 12);
@@ -253,9 +206,8 @@ void teclas(int b, int radio, int numCirculos, int x, int y) { // operacion de r
 	gotoxy(30, 18);
 	system("pause");
 }
-void personaje(int c ,int radio, int numCirculos, int x, int y) { // operacion de relleno (el elegir personaje esta god)
+void personaje(int c, int radio, int numCirculos, int x, int y) { // operacion de relleno (el elegir personaje esta god)
 	do {
-		background(radio, numCirculos);
 		titulo(x, y);
 		cuadroMenu();
 		personaje2();
@@ -267,44 +219,83 @@ void personaje(int c ,int radio, int numCirculos, int x, int y) { // operacion d
 	gotoxy(27, 14);
 	system("pause");
 }
-void imprimirTubo() {
+void imprimirTubo(int posXtub, int posYpos, int tamano, int hueco, int tamano2) {
+
+	gotoxy(posXtub - 1, posYpos - tamano); setColor(10, 2); cout << "███████████";
+	gotoxy(posXtub - 1, posYpos - tamano + 1); setColor(10, 2); cout << "███████████";
+	gotoxy(posXtub, posYpos - tamano + 2); setColor(2, 10); cout << "▀▀▀▀▀▀▀▀▀";
+	for (int i = 0; i <= tamano - 3; i++) {
+		gotoxy(posXtub, posYpos - i); setColor(10, 2); cout << "█████████";
+	}
+
+	gotoxy(posXtub, posYpos - tamano - hueco - 2); setColor(2, 10); cout << "▄▄▄▄▄▄▄▄▄";
+	gotoxy(posXtub - 1, posYpos - tamano - hueco - 1); setColor(10, 2); cout << "███████████";
+	gotoxy(posXtub - 1, posYpos - tamano - hueco); setColor(10, 2); cout << "███████████";
+
+	for (int i = 3; i <= tamano2; i++) {
+		gotoxy(posXtub, posYpos - tamano - hueco - i); setColor(10, 2); cout << "█████████";
+	}
+}
+
+
+int aparecerTubos(int position[][4][2], int  posicionX, int posicionY, int& contador) {
+	int Puntos = 4, XY = 2;
+	srand(time(NULL));
 	int tamano = 7 + rand() % 19;
 	int hueco = 9 + rand() % 3;
 	int tamano2 = 41 - hueco - tamano;
-	int posXtub = 10, posYpos = 41;
-	gotoxy(posXtub - 1, posYpos - tamano); setColor(10, 3); cout << "███████████";
-	gotoxy(posXtub - 1, posYpos - tamano + 1); setColor(10, 3); cout << "███████████";
-	gotoxy(posXtub, posYpos - tamano + 2); setColor(2, 10); cout << "▀▀▀▀▀▀▀▀▀"; setColor(3, 3); cout << "█";
-	for (int i = 0; i <= tamano - 3; i++) {
-		gotoxy(posXtub, posYpos - i); setColor(10, 3); cout << "█████████";
+	int distancia = 13 + rand() % 4;
+	if (contador == 0) {
+		contador++;
+		position[contador][0][0] = posicionX;
+		position[contador][0][1] = tamano2 + 1;
+		position[contador][1][0] = posicionX + 11;
+		position[contador][1][1] = tamano2;
+		position[contador][2][0] = posicionX;
+		position[contador][2][1] = tamano2 + hueco - 1;
+		position[contador][3][0] = posicionX + 11;
+		position[contador][3][1] = tamano2 + hueco - 1;
+	}
+	else {
+		if (position[contador][1][0] + distancia < 100) {
+			contador++;
+			position[contador][0][0] = posicionX;
+			position[contador][0][1] = tamano2 + 1;
+			position[contador][1][0] = posicionX + 11;
+			position[contador][1][1] = tamano2;
+			position[contador][2][0] = posicionX;
+			position[contador][2][1] = tamano2 + hueco - 1;
+			position[contador][3][0] = posicionX + 11;
+		}
 	}
 
-	gotoxy(posXtub, posYpos - tamano - hueco - 2); setColor(2, 10); cout << "▄▄▄▄▄▄▄▄▄"; setColor(3, 3); cout << "█";
-	gotoxy(posXtub - 1, posYpos - tamano - hueco - 1); setColor(10, 3); cout << "███████████";
-	gotoxy(posXtub - 1, posYpos - tamano - hueco); setColor(10, 3); cout << "███████████";
-
-	for (int i = 3; i <= tamano2; i++) {
-		gotoxy(posXtub, posYpos - tamano - hueco - i); setColor(10, 3); cout << "█████████";
+	if (contador > 0) {
+		for (int i = 1; i <= contador; i++) imprimirTubo(position[i][0][0], position[i][0][1], posicionY - position[i][2][1], position[i][2][1] - position[i][0][1], newPosition[i][0][1]);
+		for (int i = 1; i <= contador; i++) { position[i][0][0]--; position[i][1][0]--; position[i][2][0]--; position[i][3][0]--; }
 	}
 
+	if (contador > 1)
+		if (position[1][0][0] < 0) {
+
+		}
+	return position;
 }
-
 
 void personaje2() {
 	int posXper = 5, posYper = 12;
-	gotoxy(posXper+3, posYper); setColor(13, 3); cout <<     "▀█▄";
-	gotoxy(posXper, posYper + 1); setColor(5, 3); cout << "█▄█"; setColor(13, 5); cout<< "▄█"; setColor(8, 13); cout << "▄"; setColor(13, 3); cout << "█▄";
+	gotoxy(posXper + 3, posYper); setColor(13, 3); cout << "▀█▄";
+	gotoxy(posXper, posYper + 1); setColor(5, 3); cout << "█▄█"; setColor(13, 5); cout << "▄█"; setColor(8, 13); cout << "▄"; setColor(13, 3); cout << "█▄";
 	gotoxy(posXper, posYper + 2); setColor(5, 3); cout << "█▀█"; setColor(13, 5); cout << "▀█"; setColor(0, 13); cout << "▀"; setColor(13, 5); cout << "█▀";
 }
 // ---------------------------------------------
-void showImage(int pos[][width][2]) {
+void showImage(int*** pos) {
 	gotoxy(pos[0][0][0], pos[0][0][1]); setColor(1, 3); cout << "   ▄▄▄"; setColor(15, 3); cout << "▄▄";
 	gotoxy(pos[1][0][0], pos[1][0][1]); setColor(9, 1); cout << "██▄"; setColor(1, 3); cout << "███"; setColor(15, 3); cout << "█"; setColor(8, 0); cout << "▀"; setColor(15, 3); cout << "█";
 	gotoxy(pos[2][0][0], pos[2][0][1]); setColor(9, 3); cout << " ▀█"; setColor(1, 3); cout << "████"; setColor(4, 12); cout << "▄▄▄";
 }
 
-void changePos(int positions[][width][2], char op) {
-	int pos, k;
+void changePos(int*** positions, char op) {
+	int pos = 1, k = 0;
 	switch (op) {
 	case 'a':
 		pos = 0;
@@ -315,36 +306,75 @@ void changePos(int positions[][width][2], char op) {
 		k = 1;
 		break;
 	case 'w':
-		pos = 1;
+		k = -5;
+		break;
+	case 'x':
+		k = -3;
+		break;
+	case 'y':
 		k = -1;
 		break;
-	case 's':
-		pos = 1;
+
+	case 'f':
 		k = 1;
 		break;
-	default:
-		pos = 1;
-		k = 2;
-	}
 
+	case 'g':
+		k = 2;
+		break;
+	case 'h':
+		k = 3;
+		break;
+
+	}
+	int j = 0;
 	for (int i = 0; i < height; i++) {
-		for (int j = 0; j < width; j++) {
-			positions[i][j][pos] += k;
+		if (positions[height - 1][j][1] + k > 31) {
+			k = 1;
 		}
+		if (positions[i][j][pos] + k >= 0 && positions[height - 1][j][1] + k <= 31) {
+			for (int j = 0; j < width; j++) {
+				positions[i][j][pos] += k;
+			}
+		}
+		else {
+			break;
+		}
+
 	}
 }
+void caidaSubidaIncremento(char& op) {
+	switch (op) {
+		//Subida
+	case 'w':
+		op = 'x';
+		break;
+	case 'x':
+		op = 'y';
+		break;
+	case 'y':
+		op = 'f';
+		break;
+		//Caida
+	case 'f':
+		op = 'g';
+		break;
 
+	case 'g':
+		op = 'h';
+		break;
+	}
+
+}
 void newchoosePosition(char& op) {
 	auto start = std::chrono::high_resolution_clock::now();
-	int timeout_ms = 250;
-	gotoxy(40, 0);
+	int timeout_ms = 75;
 	while (true) {
 		if (_kbhit()) {
 
 			op = _getch();
 			setColor(14, 3);
-			cout << "Tecla presionada!" << endl;
-			if (op == 'a' || op == 'd' || op == 'w' || op == 's' || op == 'q') {
+			if (op == 'a' || op == 'd' || op == 'w' || op == 'q') {
 				return;
 			}
 		}
@@ -352,24 +382,22 @@ void newchoosePosition(char& op) {
 		auto now = std::chrono::high_resolution_clock::now();
 		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();
 		if (duration >= timeout_ms) {
-			op = 'z';
+			if (op == 'w' || op == 'x' || op == 'y') {
+				caidaSubidaIncremento(op);
+			}
+			else if (op == 'f' || op == 'g' || op == 'h') {
+				caidaSubidaIncremento(op);
+			}
+			else {
+				op = 'f';
+			}
+
 			return;
 		}
 		this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 }
-void mantenerJuego(int positions[][width][2]) {
-	char op;
-	system("cls");
-	piso();
-	do {
-		presentacion1();
-		showImage(positions);
-		newchoosePosition(op);
-		changePos(positions, op);
-	} while (op != 'q');
 
-}
 // --------------------------------------------------------
 void cuadroMenu() {
 	setColor(14, 3);
@@ -383,8 +411,8 @@ void cuadroMenu() {
 }
 void piso() {
 	for (int i = 0; i < 7; ++i) {
-		gotoxy(0, 42 + i);
-		if (i == 0 || i==1)
+		gotoxy(0, 32 + i);
+		if (i == 0 || i == 1)
 			setColor(2, 3);
 		else
 			setColor(6, 3);
@@ -400,18 +428,10 @@ void piso() {
 		}
 	}
 }
-void OcultarCursor() {
-	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-	CONSOLE_CURSOR_INFO cursorInfo;
-	GetConsoleCursorInfo(hConsole, &cursorInfo);
-	cursorInfo.bVisible = FALSE; // Cambia la visibilidad del cursor a FALSE
-	SetConsoleCursorInfo(hConsole, &cursorInfo);
-}
-
 
 void titulo(int x, int y) {                  // tremendo titulo, es la unica forma de coutearlo :/
 	SetConsoleOutputCP(CP_UTF8);
-	
+
 	// F
 	gotoxy(x, y);     setColor(15, 3); cout << "███████"; setColor(7, 3); cout << "██";
 	gotoxy(x, y + 1); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "██";
@@ -432,12 +452,12 @@ void titulo(int x, int y) {                  // tremendo titulo, es la unica for
 
 	// U
 	gotoxy(x + 16, y);     setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█"; gotoxy(x + 22, y);   setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█";
-	gotoxy(x + 16, y + 1); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█"; gotoxy(x + 22, y+1); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█";
-	gotoxy(x + 16, y + 2); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█"; gotoxy(x + 22, y+2); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█";
-	gotoxy(x + 16, y + 3); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█"; gotoxy(x + 22, y+3); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█";
-	gotoxy(x + 16, y + 4); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█"; gotoxy(x + 22, y+4); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█";
-	gotoxy(x + 16, y + 5); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█"; gotoxy(x + 22, y+5); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█";
-	gotoxy(x + 17, y + 6); setColor(15, 3); cout <<  "██████"; setColor(7, 3); cout << "█";
+	gotoxy(x + 16, y + 1); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█"; gotoxy(x + 22, y + 1); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█";
+	gotoxy(x + 16, y + 2); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█"; gotoxy(x + 22, y + 2); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█";
+	gotoxy(x + 16, y + 3); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█"; gotoxy(x + 22, y + 3); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█";
+	gotoxy(x + 16, y + 4); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█"; gotoxy(x + 22, y + 4); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█";
+	gotoxy(x + 16, y + 5); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█"; gotoxy(x + 22, y + 5); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█";
+	gotoxy(x + 17, y + 6); setColor(15, 3); cout << "██████"; setColor(7, 3); cout << "█";
 
 	// F
 	gotoxy(x + 26, y);     setColor(15, 3); cout << "███████"; setColor(7, 3); cout << "█";
@@ -458,13 +478,13 @@ void titulo(int x, int y) {                  // tremendo titulo, es la unica for
 	gotoxy(x + 34, y + 6); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█";
 
 	// Y
-	gotoxy(x + 42, y);     setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█"; gotoxy(x + 47, y); setColor(15, 3); cout <<       "██"; setColor(7, 3); cout << " ";
-	gotoxy(x + 42, y + 1); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█"; gotoxy(x + 47, y + 1); setColor(15, 3); cout <<   "██"; setColor(7, 3); cout << " ";
-	gotoxy(x + 43, y + 2); setColor(15, 3); cout <<  "██"; setColor(7, 3); cout << "█"; gotoxy(x + 46, y + 2); setColor(15, 3); cout << "██"; setColor(7, 3); cout << " ";
-	gotoxy(x + 44, y + 3); setColor(15, 3); cout <<   "███"; setColor(7, 3); cout << " ";
-	gotoxy(x + 45, y + 4); setColor(15, 3); cout <<    "██"; setColor(7, 3); cout << " ";
-	gotoxy(x + 45, y + 5); setColor(15, 3); cout <<    "██"; setColor(7, 3); cout << " ";
-	gotoxy(x + 45, y + 6); setColor(15, 3); cout <<    "██"; setColor(7, 3); cout << " ";
+	gotoxy(x + 42, y);     setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█"; gotoxy(x + 47, y); setColor(15, 3); cout << "██"; setColor(7, 3); cout << " ";
+	gotoxy(x + 42, y + 1); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█"; gotoxy(x + 47, y + 1); setColor(15, 3); cout << "██"; setColor(7, 3); cout << " ";
+	gotoxy(x + 43, y + 2); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█"; gotoxy(x + 46, y + 2); setColor(15, 3); cout << "██"; setColor(7, 3); cout << " ";
+	gotoxy(x + 44, y + 3); setColor(15, 3); cout << "███"; setColor(7, 3); cout << " ";
+	gotoxy(x + 45, y + 4); setColor(15, 3); cout << "██"; setColor(7, 3); cout << " ";
+	gotoxy(x + 45, y + 5); setColor(15, 3); cout << "██"; setColor(7, 3); cout << " ";
+	gotoxy(x + 45, y + 6); setColor(15, 3); cout << "██"; setColor(7, 3); cout << " ";
 
 	// B
 	gotoxy(x + 53, y);     setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██████";
@@ -477,28 +497,28 @@ void titulo(int x, int y) {                  // tremendo titulo, es la unica for
 
 	// I
 	gotoxy(x + 61, y);     setColor(7, 3); cout << "█"; setColor(15, 3); cout << "████";
-	gotoxy(x + 62, y + 1); setColor(7, 3); cout << "█"; setColor(15, 3); cout <<  "██";
-	gotoxy(x + 62, y + 2); setColor(7, 3); cout << "█"; setColor(15, 3); cout <<  "██";
-	gotoxy(x + 62, y + 3); setColor(7, 3); cout << "█"; setColor(15, 3); cout <<  "██";
-	gotoxy(x + 62, y + 4); setColor(7, 3); cout << "█"; setColor(15, 3); cout <<  "██";
-	gotoxy(x + 62, y + 5); setColor(7, 3); cout << "█"; setColor(15, 3); cout <<  "██";
+	gotoxy(x + 62, y + 1); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██";
+	gotoxy(x + 62, y + 2); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██";
+	gotoxy(x + 62, y + 3); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██";
+	gotoxy(x + 62, y + 4); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██";
+	gotoxy(x + 62, y + 5); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██";
 	gotoxy(x + 61, y + 6); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "████";
 
 	// R
 	gotoxy(x + 67, y);     setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██████";
-	gotoxy(x + 67, y + 1); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██"; gotoxy(x + 72, y + 1); setColor(7, 3); cout << "█"; setColor(15, 3); cout <<   "██";
-	gotoxy(x + 67, y + 2); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██"; gotoxy(x + 72, y + 2); setColor(7, 3); cout << "█"; setColor(15, 3); cout <<   "██";
+	gotoxy(x + 67, y + 1); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██"; gotoxy(x + 72, y + 1); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██";
+	gotoxy(x + 67, y + 2); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██"; gotoxy(x + 72, y + 2); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██";
 	gotoxy(x + 67, y + 3); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██████";
 	gotoxy(x + 67, y + 4); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██"; gotoxy(x + 70, y + 4); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██";
-	gotoxy(x + 67, y + 5); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██"; gotoxy(x + 71, y + 5); setColor(7, 3); cout << "█"; setColor(15, 3); cout <<  "██";
-	gotoxy(x + 67, y + 6); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██"; gotoxy(x + 72, y + 6); setColor(7, 3); cout << "█"; setColor(15, 3); cout <<   "██";
+	gotoxy(x + 67, y + 5); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██"; gotoxy(x + 71, y + 5); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██";
+	gotoxy(x + 67, y + 6); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██"; gotoxy(x + 72, y + 6); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██";
 
 	// D
 	gotoxy(x + 75, y);     setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██████";
 	gotoxy(x + 75, y + 1); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██"; gotoxy(x + 79, y + 1); setColor(7, 3); cout << "██"; setColor(15, 3); cout << "██";
-	gotoxy(x + 75, y + 2); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██"; gotoxy(x + 80, y + 2); setColor(7, 3); cout << "██"; setColor(15, 3); cout <<  "██";
-	gotoxy(x + 75, y + 3); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██"; gotoxy(x + 80, y + 3); setColor(7, 3); cout << "██"; setColor(15, 3); cout <<  "██";
-	gotoxy(x + 75, y + 4); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██"; gotoxy(x + 80, y + 4); setColor(7, 3); cout << "██"; setColor(15, 3); cout <<  "██";
+	gotoxy(x + 75, y + 2); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██"; gotoxy(x + 80, y + 2); setColor(7, 3); cout << "██"; setColor(15, 3); cout << "██";
+	gotoxy(x + 75, y + 3); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██"; gotoxy(x + 80, y + 3); setColor(7, 3); cout << "██"; setColor(15, 3); cout << "██";
+	gotoxy(x + 75, y + 4); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██"; gotoxy(x + 80, y + 4); setColor(7, 3); cout << "██"; setColor(15, 3); cout << "██";
 	gotoxy(x + 75, y + 5); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██"; gotoxy(x + 79, y + 5); setColor(7, 3); cout << "██"; setColor(15, 3); cout << "██";
 	gotoxy(x + 75, y + 6); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██████";
 }
