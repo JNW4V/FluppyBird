@@ -142,6 +142,13 @@ void backgroundInicio(int radius, int numCircles, int numBuildings);
 //void play(int a, int radio, int numCirculos, int x, int y);
 void teclas(int b, int radio, int numCirculos, int x, int y);
 void personaje(int c, int radio, int numCirculos, int x, int y);
+// 1 vs 1
+void mantenerBoss(int position[][width][2]);
+void mantener1VS1(int jugador1[][width][2], int jugador2[][width][2]);
+void showImage2(int pos[][width][2], int pos2[][width][2]);
+void changePos2(int positions[][width][2], char op);
+void newchoosePosition2(char& op);
+void bossImage();
 
 void aparecerTubos(int position[][4][2], int  posicionX, int posicionY, int& contador);
 void pantallaDerrota(char& op);
@@ -151,9 +158,6 @@ void mostrarNum(int k);
 int main() {
 	setConsoleFullScreen();
 	SetConsoleOutputCP(CP_UTF8);
-	int position[3][width][2] = { {{5,12},{6,12},{7,12},{8,12},{9,12},{10,12},{11,12},{12,12},{13,12}},
-	{{5,13},{6,13},{7,13},{8,13},{9,13},{10,13},{11,13},{12,13},{13,13}},
-	{{5,14},{6,14},{7,14},{8,14},{9,14},{10,14},{11,14},{12,14},{13,14}} };
 
 	OcultarCursor();
 	presentacion();
@@ -176,6 +180,12 @@ void presentacion() {
 		{{posXpaja,posYpaja + 1},{posXpaja + 1,posYpaja + 1},{posXpaja + 2,posYpaja + 1},{posXpaja + 3,posYpaja + 1},{posXpaja + 4,posYpaja + 1},{posXpaja + 5,posYpaja + 1},{posXpaja + 6,posYpaja + 1},{posXpaja + 7,posYpaja + 1},{posXpaja + 8,posYpaja + 1}},
 		{{posXpaja,posYpaja + 2},{posXpaja + 1,posYpaja + 2},{posXpaja + 2,posYpaja + 2},{posXpaja + 3,posYpaja + 2},{posXpaja + 4,posYpaja + 2},{posXpaja + 5,posYpaja + 2},{posXpaja + 6,posYpaja + 2},{posXpaja + 7,posYpaja + 2},{posXpaja + 8,posYpaja + 2}}
 		};
+		int posXpaja2 = 30 + 52, posYpaja2 = 12;
+		int position2[3][width][2] = { // jugador 2
+		{{posXpaja2,posYpaja2},{posXpaja2 + 1,posYpaja2},{posXpaja2 + 2,posYpaja2},{posXpaja2 + 3,posYpaja2},{posXpaja2 + 4,posYpaja2},{posXpaja2 + 5,posYpaja2},{posXpaja2 + 6,posYpaja2},{posXpaja2 + 7,posYpaja2},{posXpaja2 + 8,posYpaja2}},
+		{{posXpaja2,posYpaja2 + 1},{posXpaja2 + 1,posYpaja2 + 1},{posXpaja2 + 2,posYpaja2 + 1},{posXpaja2 + 3,posYpaja2 + 1},{posXpaja2 + 4,posYpaja2 + 1},{posXpaja2 + 5,posYpaja2 + 1},{posXpaja2 + 6,posYpaja2 + 1},{posXpaja2 + 7,posYpaja2 + 1},{posXpaja2 + 8,posYpaja2 + 1}},
+		{{posXpaja2,posYpaja2 + 2},{posXpaja2 + 1,posYpaja2 + 2},{posXpaja2 + 2,posYpaja2 + 2},{posXpaja2 + 3,posYpaja2 + 2},{posXpaja2 + 4,posYpaja2 + 2},{posXpaja2 + 5,posYpaja2 + 2},{posXpaja2 + 6,posYpaja2 + 2},{posXpaja2 + 7,posYpaja2 + 2},{posXpaja2 + 8,posYpaja2 + 2}}
+		};
 		system("cls");
 		SetConsoleRegionColor(52, 0, 100, 54, 3, 80); // cambia el color del fondo a azul solo de la region (52,0) a (100,54). El 3 y el otro 3 son el color del fondo y texto si es que se pone
 		backgroundInicio(radio,numCirculos, numEdificios);
@@ -192,8 +202,8 @@ void presentacion() {
 		cin.get();
 		switch (op) {
 		case 1: mantenerJuego(position); break;
-		case 2: teclas(b, radio, numCirculos, x, y); break;
-		case 3: personaje(c, radio, numCirculos, x, y); break;
+		case 2: mantener1VS1(position, position2); break;
+		case 3: mantenerBoss(position); break;
 		}
 	} while (op != 4);
 	gotoxy(52 + 40, 19);
@@ -227,6 +237,60 @@ void mantenerJuego(int position[][width][2]) {
 	} while (op != 'q');
 
 }
+void mantener1VS1(int jugador1[][width][2], int jugador2[][width][2]) { // -------------------------------- 1 vs 1
+	char op, po;
+	const int radio = 10;
+	const int numCirculos = 6;
+	const int numEdificios = 15;
+	int posicionX = 88 + 48, posicionY = 41, contador = 0, contador1 = 0;
+	int positionTubo[10][4][2];
+	setColor(0, 0);
+	system("cls");
+	SetConsoleRegionColor(52, 0, 100, 54, 3, 80);
+	backgroundInicio(radio, numCirculos, numEdificios);
+	piso();
+	do {
+		OcultarCursor();
+		showImage2(jugador1, jugador2);
+		newchoosePosition(op);
+		newchoosePosition2(po);
+		showClearImage(jugador1);
+		showClearImage(jugador2);
+		changePos(jugador1, op);
+		changePos2(jugador2, po);
+		aparecerTubos(positionTubo, posicionX, posicionY, contador);
+		if (contador != 0) {
+			validacionTubo(positionTubo, jugador1, contador, op);
+			validacionTubo(positionTubo, jugador2, contador, op);
+		}
+		//contadorTubos(positionTubo, position, contador1, contador);
+	} while (op != 'q');
+}
+
+void mantenerBoss(int position[][width][2]){
+	char op;
+	const int radio = 10;
+	const int numCirculos = 6;
+	const int numEdificios = 15;
+	int positionTubo[10][4][2];
+	setColor(0, 0);
+	system("cls");
+	SetConsoleRegionColor(52, 0, 100, 54, 3, 80);
+	backgroundInicio(radio, numCirculos, numEdificios);
+	piso();
+	do {
+
+		OcultarCursor();
+		showImage(position);
+		newchoosePosition(op);
+		showClearImage(position); // limpia la region del pajaro despues de su movimiento (tiene como variable a position, basicamente como si fuera la sobra de showImage, solo q lo limpia)
+		changePos(position, op);
+		bossImage();
+
+	} while (op != 'q');
+
+}
+
 void contadorTubos(int positionTubo[][4][2], int position[][width][2], int& contador1, int contador) {
 	int c = 0;
 	for (int i = contador1 + 1; i <= contador; i++) {
@@ -545,10 +609,49 @@ void showImage(int pos[][width][2]) {
 	gotoxy(pos[1][0][0], pos[1][0][1]); setColor(39, 25); cout << "██▄"; setColor(25, 80); cout << "███"; setColor(15, 80); cout << "█"; setColor(66, 0); cout << "▀"; setColor(15, 80); cout << "█";
 	gotoxy(pos[2][0][0], pos[2][0][1]); setColor(39, 80); cout << " ▀█"; setColor(25, 80); cout << "████"; setColor(202, 208); cout << "▄▄▄";
 }
+
+void showImage2(int pos[][width][2], int pos2[][width][2]) {
+	gotoxy(pos[0][0][0], pos[0][0][1]); setColor(25, 80); cout << "   ▄▄▄"; setColor(15, 80); cout << "▄▄";
+	gotoxy(pos[1][0][0], pos[1][0][1]); setColor(39, 25); cout << "██▄"; setColor(25, 80); cout << "███"; setColor(15, 80); cout << "█"; setColor(66, 0); cout << "▀"; setColor(15, 80); cout << "█";
+	gotoxy(pos[2][0][0], pos[2][0][1]); setColor(39, 80); cout << " ▀█"; setColor(25, 80); cout << "████"; setColor(202, 208); cout << "▄▄▄";
+
+	gotoxy(pos2[0][0][0], pos2[0][0][1]); setColor(34, 80); cout << "   ▄▄▄"; setColor(15, 80); cout << "▄▄";
+	gotoxy(pos2[1][0][0], pos2[1][0][1]); setColor(76, 34); cout << "██▄"; setColor(34, 80); cout << "███"; setColor(15, 80); cout << "█"; setColor(66, 0); cout << "▀"; setColor(15, 80); cout << "█";
+	gotoxy(pos2[2][0][0], pos2[2][0][1]); setColor(76, 80); cout << " ▀█"; setColor(34, 80); cout << "████"; setColor(202, 208); cout << "▄▄▄";
+}
+
 void showClearImage(int pos[][width][2]) {// --------------------------------------- limpia la region desde el pos inicial en showImage, esquina superior izquierda del pajaro en showImage, hasta la esquina inferior derecha
 	clearRegion(pos[0][0][0], pos[0][0][1], pos[2][0][0] + 10, pos[2][0][1]); // el mas 10 para q selecione hasta la esquina inferior derecha del pajaro desde le punto inicial (esquina superior izquierda)
 }
 
+void bossImage() {
+	int posXboss = 52 + 60, posYBoss = 8;
+	gotoxy(posXboss, posYBoss + 0); setColor(221, 80); cout << "              ▄███▄";
+	gotoxy(posXboss, posYBoss + 1); setColor(221, 80); cout << "           ▄██"; setColor(0, 80); cout << "█████"; setColor(221, 80); cout << "██";
+	gotoxy(posXboss, posYBoss + 2); setColor(221, 80); cout << "          █"; setColor(0, 80); cout << "██"; setColor(15, 0); cout << " ███ "; setColor(0, 80); cout << "███"; setColor(221, 80); cout << "██";
+	gotoxy(posXboss, posYBoss + 3); setColor(221, 80); cout << "         █"; setColor(0, 80); cout << "███"; setColor(15, 0); cout << "█▄█▄█"; setColor(0, 221); cout << "████▄"; setColor(208, 80); cout << "██▄";
+	gotoxy(posXboss, posYBoss + 4); setColor(221, 80); cout << "         █"; setColor(0, 80); cout << "██"; setColor(15, 0); cout << " ▄███ "; setColor(0, 80); cout << "███████"; setColor(208, 80); cout << "█▄";
+	gotoxy(posXboss, posYBoss + 5); setColor(221, 80); cout << "        █"; setColor(0, 80); cout << "███"; setColor(15, 0); cout << "▀  "; setColor(0, 80); cout << "█"; setColor(15, 0); cout << " ▀"; setColor(0, 130); cout << "█████████▄▄"; setColor(130, 80); cout << "▄▄▄▄▄▄";
+	gotoxy(posXboss, posYBoss + 6); setColor(0, 80); cout << "        "; setColor(0, 80); cout << "████████"; setColor(89, 0); cout << "▄▄▄▄▄▄▄▄▄"; setColor(0, 80); cout << "██████████"; setColor(130, 80); cout << "███";
+	gotoxy(posXboss, posYBoss + 7); setColor(0, 80); cout << "         ███"; setColor(89, 52); cout << "██████▀▀▀▀▀▀▀▀▀"; setColor(0, 80); cout << "███████████";
+	gotoxy(posXboss, posYBoss + 8); setColor(0, 80); cout << "          █"; setColor(89, 221); cout << "██▀▀▀"; setColor(221, 80); cout << "██"; setColor(0, 80); cout << "████"; setColor(208, 80); cout << "███"; setColor(52, 208); cout << "▀▀███"; setColor(0, 80); cout << "██████";
+	gotoxy(posXboss, posYBoss + 9); setColor(95, 80); cout << "  ████      "; setColor(0, 230); cout << "▀█"; setColor(208, 80); cout << "█"; setColor(221, 80); cout << "██"; setColor(0, 228); cout << "█"; setColor(228, 230); cout << "▄▄"; setColor(0, 228); cout << "███"; setColor(208, 80); cout << "████"; setColor(130, 80); cout << "██"; setColor(0, 80); cout << "███";
+	gotoxy(posXboss, posYBoss + 10); setColor(95, 80); cout << " ██  █     "; setColor(0, 80); cout << "▐"; setColor(0, 228); cout << " ██"; setColor(208, 80); cout << "█"; setColor(221, 80); cout << "█"; setColor(0, 228); cout << "█▄▄██"; setColor(208, 0); cout << "▄███"; setColor(130, 80); cout << "████";
+	gotoxy(posXboss, posYBoss + 11); setColor(95, 80); cout << " █   ▀      "; setColor(0, 221); cout << "██▀    ▄ "; setColor(221, 80); cout << "██"; setColor(208, 80); cout << "███"; setColor(130, 80); cout << "████";
+	gotoxy(posXboss, posYBoss + 12); setColor(95, 80); cout << "  ████       "; setColor(221, 80); cout << "██"; setColor(0, 221); cout << "▀████"; setColor(221, 80); cout << "████"; setColor(208, 80); cout << "███"; setColor(130, 80); cout << "██";
+	gotoxy(posXboss, posYBoss + 13); setColor(95, 80); cout << "    ████     "; setColor(0, 221); cout << "   ▀▀▀▀   "; setColor(208, 221); cout << " ███"; setColor(130, 80); cout << "██"; setColor(95, 80); cout << "▄";
+	gotoxy(posXboss, posYBoss + 14); setColor(95, 80); cout << "   ██████    "; setColor(95, 80); cout << "▄█"; setColor(52, 89); cout << "▀▀██████████▀▀"; setColor(95, 80); cout << "████▄▄";
+	gotoxy(posXboss, posYBoss + 15); setColor(95, 80); cout << "   ███████ ████▀"; setColor(89, 0); cout << "▀███▀██▀████"; setColor(0, 80); cout << "█"; setColor(95, 80); cout << "▀  ▀██▄";
+	gotoxy(posXboss, posYBoss + 16); setColor(95, 80); cout << "     ████████  "; setColor(0, 80); cout << "▄█"; setColor(180, 52); cout << "█▀▀▀▀▀███"; setColor(0, 80); cout << "████  "; setColor(95, 229); cout << "██████";
+	gotoxy(posXboss, posYBoss + 17); setColor(95, 80); cout << "      ██████   "; setColor(0, 80); cout << "█"; setColor(52, 228); cout << "███   ████"; setColor(0, 95); cout << "█████"; setColor(95, 229); cout << "████████";
+	gotoxy(posXboss, posYBoss + 18); setColor(95, 80); cout << "               "; setColor(52, 228); cout << "███████████████"; setColor(95, 229); cout << "████████";
+	gotoxy(posXboss, posYBoss + 19); setColor(0, 80); cout << "              ███"; setColor(52, 229); cout << "█████████"; setColor(0, 95); cout << "██▀▄  "; setColor(95, 180); cout << "█████";
+	gotoxy(posXboss, posYBoss + 20); setColor(95, 80); cout << "            ██"; setColor(0, 80); cout << "█████    ▀████"; setColor(95, 0); cout << "▀██████▀";
+	gotoxy(posXboss, posYBoss + 21); setColor(95, 80); cout << "           ██"; setColor(0, 95); cout << "▄"; setColor(95, 80); cout << "███"; setColor(0, 80); cout << "█         ██████";
+	gotoxy(posXboss, posYBoss + 22); setColor(95, 80); cout << "          ██"; setColor(0, 80); cout << "█"; setColor(95, 80); cout << "██████       "; setColor(95, 0); cout << "    ███";
+	gotoxy(posXboss, posYBoss + 23); setColor(0, 80); cout << "                           █"; setColor(95, 80); cout << "████"; setColor(0, 80); cout << "█"; setColor(95, 80); cout << "██";
+	gotoxy(posXboss, posYBoss + 24); setColor(95, 80); cout << "                            ███"; setColor(0, 95); cout << "▄█▄"; setColor(95, 80); cout << "██";
+}
 
 void changePos(int positions[][width][2], char op) {
 	int pos = 1, k = 0;
@@ -563,6 +666,55 @@ void changePos(int positions[][width][2], char op) {
 		break;
 	case 'w':
 		k = -4;
+		break;
+	case 'x':
+		k = -2;
+		break;
+	case 'y':
+		k = -1;
+		break;
+
+	case 'f':
+		k = 0;
+		break;
+
+	case 'g':
+		k = 1;
+		break;
+	case 'h':
+		k = 2;
+		break;
+
+	}
+	int j = 0;
+	for (int i = 0; i < height; i++) {
+		if (positions[height - 1][j][1] + k > 41) {
+			k = 1;
+		}
+		if (positions[i][j][pos] + k >= 0 && positions[height - 1][j][1] + k <= 41) {
+			for (int j = 0; j < width; j++) {
+				positions[i][j][pos] += k;
+			}
+		}
+		else {
+			break;
+		}
+
+	}
+}
+void changePos2(int positions[][width][2], char op) { // --------------------------------- jugador 2
+	int pos = 1, k = 0;
+	switch (op) {
+	case '4':
+		pos = 0;
+		k = -1;
+		break;
+	case '6':
+		pos = 0;
+		k = 1;
+		break;
+	case '8':
+		k = -3;
 		break;
 	case 'x':
 		k = -2;
@@ -654,6 +806,38 @@ void newchoosePosition(char& op) {
 	}
 }
 
+void newchoosePosition2(char& op) { // ----------------------------------------- jugador 2
+	auto start = std::chrono::high_resolution_clock::now();
+	int timeout_ms = 50;
+	while (true) {
+		if (_kbhit()) {
+
+			op = _getch();
+			setColor(80, 80);
+			if (op == '4' || op == '6' || op == '8' || op == 'q') {
+				return;
+			}
+		}
+		setColor(80, 80);
+		auto now = std::chrono::high_resolution_clock::now();
+		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();
+		if (duration >= timeout_ms) {
+			if (op == 'w' || op == 'x' || op == 'y') {
+				caidaSubidaIncremento(op);
+			}
+			else if (op == 'f' || op == 'g' || op == 'h') {
+				caidaSubidaIncremento(op);
+			}
+			else {
+				op = 'f';
+			}
+
+			return;
+		}
+		this_thread::sleep_for(std::chrono::milliseconds(50));
+	}
+}
+
 // --------------------------------------------------------
 void cuadroMenu() {
 	setColor(222,80);
@@ -666,8 +850,8 @@ void cuadroMenu() {
 		cout << endl;
 	}
 	gotoxy(x + 3, y + 1); setColor(202, 222); cout << "[1] Jugar" << endl;
-	gotoxy(x + 3, y + 2); cout << "[2] Tutorial" << endl;
-	gotoxy(x + 3, y + 3); cout << "[3] Opciones" << endl;
+	gotoxy(x + 3, y + 2); cout << "[2] 1 VS 1" << endl;
+	gotoxy(x + 3, y + 3); cout << "[3] VS Jefe" << endl;
 	gotoxy(x + 3, y + 4); cout << "[4] Salir" << endl;
 	gotoxy(x + 3, y + 5); cout << "Ingrese una opción (1-4) : ";
 }
@@ -703,92 +887,92 @@ void titulo(int x, int y) {
 	SetConsoleOutputCP(CP_UTF8);
 
 	// F
-	gotoxy(x, y);     setColor(15, 3); cout << "███████"; setColor(7, 3); cout << "██";
-	gotoxy(x, y + 1); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "██";
-	gotoxy(x, y + 2); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "██";
-	gotoxy(x, y + 3); setColor(15, 3); cout << "██████"; setColor(7, 3); cout << "██";
-	gotoxy(x, y + 4); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "██";
-	gotoxy(x, y + 5); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "██";
-	gotoxy(x, y + 6); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "██";
+	gotoxy(x, y);     setColor(195, 80); cout << "███████"; setColor(37, 80); cout << "██";
+	gotoxy(x, y + 1); setColor(195, 80); cout << "██"; setColor(37, 80); cout << "██";
+	gotoxy(x, y + 2); setColor(195, 80); cout << "██"; setColor(37, 80); cout << "██";
+	gotoxy(x, y + 3); setColor(195, 80); cout << "██████"; setColor(37, 80); cout << "██";
+	gotoxy(x, y + 4); setColor(195, 80); cout << "██"; setColor(37, 80); cout << "██";
+	gotoxy(x, y + 5); setColor(195, 80); cout << "██"; setColor(37, 80); cout << "██";
+	gotoxy(x, y + 6); setColor(195, 80); cout << "██"; setColor(37, 80); cout << "██";
 
 	// L
-	gotoxy(x + 8, y);     setColor(15, 3); cout << "██"; setColor(7, 3); cout << "██";
-	gotoxy(x + 8, y + 1); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "██";
-	gotoxy(x + 8, y + 2); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "██";
-	gotoxy(x + 8, y + 3); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "██";
-	gotoxy(x + 8, y + 4); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "██";
-	gotoxy(x + 8, y + 5); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "██";
-	gotoxy(x + 8, y + 6); setColor(15, 3); cout << "███████"; setColor(7, 3); cout << "█";
+	gotoxy(x + 8, y);     setColor(195, 80); cout << "██"; setColor(37, 80); cout << "██";
+	gotoxy(x + 8, y + 1); setColor(195, 80); cout << "██"; setColor(37, 80); cout << "██";
+	gotoxy(x + 8, y + 2); setColor(195, 80); cout << "██"; setColor(37, 80); cout << "██";
+	gotoxy(x + 8, y + 3); setColor(195, 80); cout << "██"; setColor(37, 80); cout << "██";
+	gotoxy(x + 8, y + 4); setColor(195, 80); cout << "██"; setColor(37, 80); cout << "██";
+	gotoxy(x + 8, y + 5); setColor(195, 80); cout << "██"; setColor(37, 80); cout << "██";
+	gotoxy(x + 8, y + 6); setColor(195, 80); cout << "███████"; setColor(37, 80); cout << "█";
 
 	// U
-	gotoxy(x + 16, y);     setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█"; gotoxy(x + 22, y);   setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█";
-	gotoxy(x + 16, y + 1); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█"; gotoxy(x + 22, y + 1); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█";
-	gotoxy(x + 16, y + 2); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█"; gotoxy(x + 22, y + 2); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█";
-	gotoxy(x + 16, y + 3); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█"; gotoxy(x + 22, y + 3); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█";
-	gotoxy(x + 16, y + 4); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█"; gotoxy(x + 22, y + 4); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█";
-	gotoxy(x + 16, y + 5); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█"; gotoxy(x + 22, y + 5); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█";
-	gotoxy(x + 17, y + 6); setColor(15, 3); cout << "██████"; setColor(7, 3); cout << "█";
+	gotoxy(x + 16, y);     setColor(195, 80); cout << "██"; setColor(37, 80); cout << "█"; gotoxy(x + 22, y);   setColor(195, 80); cout << "██"; setColor(37, 80); cout << "█";
+	gotoxy(x + 16, y + 1); setColor(195, 80); cout << "██"; setColor(37, 80); cout << "█"; gotoxy(x + 22, y + 1); setColor(195, 80); cout << "██"; setColor(37, 80); cout << "█";
+	gotoxy(x + 16, y + 2); setColor(195, 80); cout << "██"; setColor(37, 80); cout << "█"; gotoxy(x + 22, y + 2); setColor(195, 80); cout << "██"; setColor(37, 80); cout << "█";
+	gotoxy(x + 16, y + 3); setColor(195, 80); cout << "██"; setColor(37, 80); cout << "█"; gotoxy(x + 22, y + 3); setColor(195, 80); cout << "██"; setColor(37, 80); cout << "█";
+	gotoxy(x + 16, y + 4); setColor(195, 80); cout << "██"; setColor(37, 80); cout << "█"; gotoxy(x + 22, y + 4); setColor(195, 80); cout << "██"; setColor(37, 80); cout << "█";
+	gotoxy(x + 16, y + 5); setColor(195, 80); cout << "██"; setColor(37, 80); cout << "█"; gotoxy(x + 22, y + 5); setColor(195, 80); cout << "██"; setColor(37, 80); cout << "█";
+	gotoxy(x + 17, y + 6); setColor(195, 80); cout << "██████"; setColor(37, 80); cout << "█";
 
 	// F
-	gotoxy(x + 26, y);     setColor(15, 3); cout << "███████"; setColor(7, 3); cout << "█";
-	gotoxy(x + 26, y + 1); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "██";
-	gotoxy(x + 26, y + 2); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "██";
-	gotoxy(x + 26, y + 3); setColor(15, 3); cout << "██████"; setColor(7, 3); cout << "█";
-	gotoxy(x + 26, y + 4); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "██";
-	gotoxy(x + 26, y + 5); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "██";
-	gotoxy(x + 26, y + 6); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "██";
+	gotoxy(x + 26, y);     setColor(195, 80); cout << "███████"; setColor(37, 80); cout << "█";
+	gotoxy(x + 26, y + 1); setColor(195, 80); cout << "██"; setColor(37, 80); cout << "██";
+	gotoxy(x + 26, y + 2); setColor(195, 80); cout << "██"; setColor(37, 80); cout << "██";
+	gotoxy(x + 26, y + 3); setColor(195, 80); cout << "██████"; setColor(37, 80); cout << "█";
+	gotoxy(x + 26, y + 4); setColor(195, 80); cout << "██"; setColor(37, 80); cout << "██";
+	gotoxy(x + 26, y + 5); setColor(195, 80); cout << "██"; setColor(37, 80); cout << "██";
+	gotoxy(x + 26, y + 6); setColor(195, 80); cout << "██"; setColor(37, 80); cout << "██";
 
 	// F
-	gotoxy(x + 34, y);     setColor(15, 3); cout << "███████"; setColor(7, 3); cout << "█";
-	gotoxy(x + 34, y + 1); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█";
-	gotoxy(x + 34, y + 2); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█";
-	gotoxy(x + 34, y + 3); setColor(15, 3); cout << "██████"; setColor(7, 3); cout << "█";
-	gotoxy(x + 34, y + 4); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█";
-	gotoxy(x + 34, y + 5); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█";
-	gotoxy(x + 34, y + 6); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█";
+	gotoxy(x + 34, y);     setColor(195, 80); cout << "███████"; setColor(37, 80); cout << "█";
+	gotoxy(x + 34, y + 1); setColor(195, 80); cout << "██"; setColor(37, 80); cout << "█";
+	gotoxy(x + 34, y + 2); setColor(195, 80); cout << "██"; setColor(37, 80); cout << "█";
+	gotoxy(x + 34, y + 3); setColor(195, 80); cout << "██████"; setColor(37, 80); cout << "█";
+	gotoxy(x + 34, y + 4); setColor(195, 80); cout << "██"; setColor(37, 80); cout << "█";
+	gotoxy(x + 34, y + 5); setColor(195, 80); cout << "██"; setColor(37, 80); cout << "█";
+	gotoxy(x + 34, y + 6); setColor(195, 80); cout << "██"; setColor(37, 80); cout << "█";
 
 	// Y
-	gotoxy(x + 42, y);     setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█"; gotoxy(x + 47, y); setColor(15, 3); cout << "██"; setColor(7, 3);
-	gotoxy(x + 42, y + 1); setColor(15, 3); cout << "██"; setColor(7, 3); cout << "█"; gotoxy(x + 47, y + 1); setColor(15, 3); cout << "██"; setColor(7, 3); 
-	gotoxy(x + 43, y + 2); setColor(15, 3); cout <<  "██"; setColor(7, 3); cout << "█"; gotoxy(x + 46, y + 2); setColor(15, 3); cout << "██"; setColor(7, 3); 
-	gotoxy(x + 44, y + 3); setColor(15, 3); cout <<   "███"; setColor(7, 3);
-	gotoxy(x + 45, y + 4); setColor(15, 3); cout <<    "██"; setColor(7, 3);
-	gotoxy(x + 45, y + 5); setColor(15, 3); cout <<    "██"; setColor(7, 3);
-	gotoxy(x + 45, y + 6); setColor(15, 3); cout <<    "██"; setColor(7, 3); 
+	gotoxy(x + 42, y);     setColor(195, 80); cout << "██"; setColor(37, 80); cout << "█"; gotoxy(x + 47, y); setColor(195, 80); cout << "██"; setColor(37, 80);
+	gotoxy(x + 42, y + 1); setColor(195, 80); cout << "██"; setColor(37, 80); cout << "█"; gotoxy(x + 47, y + 1); setColor(195, 80); cout << "██"; setColor(37, 80); 
+	gotoxy(x + 43, y + 2); setColor(195, 80); cout <<  "██"; setColor(37, 80); cout << "█"; gotoxy(x + 46, y + 2); setColor(195, 80); cout << "██"; setColor(37, 80); 
+	gotoxy(x + 44, y + 3); setColor(195, 80); cout <<   "███"; setColor(37, 80);
+	gotoxy(x + 45, y + 4); setColor(195, 80); cout <<    "██"; setColor(37, 80);
+	gotoxy(x + 45, y + 5); setColor(195, 80); cout <<    "██"; setColor(37, 80);
+	gotoxy(x + 45, y + 6); setColor(195, 80); cout <<    "██"; setColor(37, 80); 
 
 	// B
-	gotoxy(x + 53, y);     setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██████";
-	gotoxy(x + 53, y + 1); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██"; gotoxy(x + 58, y + 1); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██";
-	gotoxy(x + 53, y + 2); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██"; gotoxy(x + 58, y + 2); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██";
-	gotoxy(x + 53, y + 3); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██████";
-	gotoxy(x + 53, y + 4); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██"; gotoxy(x + 58, y + 4); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██";
-	gotoxy(x + 53, y + 5); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██"; gotoxy(x + 58, y + 5); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██";
-	gotoxy(x + 53, y + 6); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██████";
+	gotoxy(x + 53, y);     setColor(37, 80); cout << "█"; setColor(195, 80); cout << "██████";
+	gotoxy(x + 53, y + 1); setColor(37, 80); cout << "█"; setColor(195, 80); cout << "██"; gotoxy(x + 58, y + 1); setColor(37, 80); cout << "█"; setColor(195, 80); cout << "██";
+	gotoxy(x + 53, y + 2); setColor(37, 80); cout << "█"; setColor(195, 80); cout << "██"; gotoxy(x + 58, y + 2); setColor(37, 80); cout << "█"; setColor(195, 80); cout << "██";
+	gotoxy(x + 53, y + 3); setColor(37, 80); cout << "█"; setColor(195, 80); cout << "██████";
+	gotoxy(x + 53, y + 4); setColor(37, 80); cout << "█"; setColor(195, 80); cout << "██"; gotoxy(x + 58, y + 4); setColor(37, 80); cout << "█"; setColor(195, 80); cout << "██";
+	gotoxy(x + 53, y + 5); setColor(37, 80); cout << "█"; setColor(195, 80); cout << "██"; gotoxy(x + 58, y + 5); setColor(37, 80); cout << "█"; setColor(195, 80); cout << "██";
+	gotoxy(x + 53, y + 6); setColor(37, 80); cout << "█"; setColor(195, 80); cout << "██████";
 
 	// I
-	gotoxy(x + 61, y);     setColor(7, 3); cout << "█"; setColor(15, 3); cout << "████";
-	gotoxy(x + 62, y + 1); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██";
-	gotoxy(x + 62, y + 2); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██";
-	gotoxy(x + 62, y + 3); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██";
-	gotoxy(x + 62, y + 4); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██";
-	gotoxy(x + 62, y + 5); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██";
-	gotoxy(x + 61, y + 6); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "████";
+	gotoxy(x + 61, y);     setColor(37, 80); cout << "█"; setColor(195, 80); cout << "████";
+	gotoxy(x + 62, y + 1); setColor(37, 80); cout << "█"; setColor(195, 80); cout << "██";
+	gotoxy(x + 62, y + 2); setColor(37, 80); cout << "█"; setColor(195, 80); cout << "██";
+	gotoxy(x + 62, y + 3); setColor(37, 80); cout << "█"; setColor(195, 80); cout << "██";
+	gotoxy(x + 62, y + 4); setColor(37, 80); cout << "█"; setColor(195, 80); cout << "██";
+	gotoxy(x + 62, y + 5); setColor(37, 80); cout << "█"; setColor(195, 80); cout << "██";
+	gotoxy(x + 61, y + 6); setColor(37, 80); cout << "█"; setColor(195, 80); cout << "████";
 
 	// R
-	gotoxy(x + 67, y);     setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██████";
-	gotoxy(x + 67, y + 1); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██"; gotoxy(x + 72, y + 1); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██";
-	gotoxy(x + 67, y + 2); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██"; gotoxy(x + 72, y + 2); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██";
-	gotoxy(x + 67, y + 3); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██████";
-	gotoxy(x + 67, y + 4); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██"; gotoxy(x + 70, y + 4); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██";
-	gotoxy(x + 67, y + 5); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██"; gotoxy(x + 71, y + 5); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██";
-	gotoxy(x + 67, y + 6); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██"; gotoxy(x + 72, y + 6); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██";
+	gotoxy(x + 67, y);     setColor(37, 80); cout << "█"; setColor(195, 80); cout << "██████";
+	gotoxy(x + 67, y + 1); setColor(37, 80); cout << "█"; setColor(195, 80); cout << "██"; gotoxy(x + 72, y + 1); setColor(37, 80); cout << "█"; setColor(195, 80); cout << "██";
+	gotoxy(x + 67, y + 2); setColor(37, 80); cout << "█"; setColor(195, 80); cout << "██"; gotoxy(x + 72, y + 2); setColor(37, 80); cout << "█"; setColor(195, 80); cout << "██";
+	gotoxy(x + 67, y + 3); setColor(37, 80); cout << "█"; setColor(195, 80); cout << "██████";
+	gotoxy(x + 67, y + 4); setColor(37, 80); cout << "█"; setColor(195, 80); cout << "██"; gotoxy(x + 70, y + 4); setColor(37, 80); cout << "█"; setColor(195, 80); cout << "██";
+	gotoxy(x + 67, y + 5); setColor(37, 80); cout << "█"; setColor(195, 80); cout << "██"; gotoxy(x + 71, y + 5); setColor(37, 80); cout << "█"; setColor(195, 80); cout << "██";
+	gotoxy(x + 67, y + 6); setColor(37, 80); cout << "█"; setColor(195, 80); cout << "██"; gotoxy(x + 72, y + 6); setColor(37, 80); cout << "█"; setColor(195, 80); cout << "██";
 
 	// D
-	gotoxy(x + 75, y);     setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██████";
-	gotoxy(x + 75, y + 1); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██"; gotoxy(x + 79, y + 1); setColor(7, 3); cout << "██"; setColor(15, 3); cout << "██";
-	gotoxy(x + 75, y + 2); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██"; gotoxy(x + 80, y + 2); setColor(7, 3); cout << "██"; setColor(15, 3); cout << "██";
-	gotoxy(x + 75, y + 3); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██"; gotoxy(x + 80, y + 3); setColor(7, 3); cout << "██"; setColor(15, 3); cout << "██";
-	gotoxy(x + 75, y + 4); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██"; gotoxy(x + 80, y + 4); setColor(7, 3); cout << "██"; setColor(15, 3); cout << "██";
-	gotoxy(x + 75, y + 5); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██"; gotoxy(x + 79, y + 5); setColor(7, 3); cout << "██"; setColor(15, 3); cout << "██";
-	gotoxy(x + 75, y + 6); setColor(7, 3); cout << "█"; setColor(15, 3); cout << "██████";
+	gotoxy(x + 75, y);     setColor(37, 80); cout << "█"; setColor(195, 80); cout << "██████";
+	gotoxy(x + 75, y + 1); setColor(37, 80); cout << "█"; setColor(195, 80); cout << "██"; gotoxy(x + 79, y + 1); setColor(37, 80); cout << "██"; setColor(195, 80); cout << "██";
+	gotoxy(x + 75, y + 2); setColor(37, 80); cout << "█"; setColor(195, 80); cout << "██"; gotoxy(x + 80, y + 2); setColor(37, 80); cout << "██"; setColor(195, 80); cout << "██";
+	gotoxy(x + 75, y + 3); setColor(37, 80); cout << "█"; setColor(195, 80); cout << "██"; gotoxy(x + 80, y + 3); setColor(37, 80); cout << "██"; setColor(195, 80); cout << "██";
+	gotoxy(x + 75, y + 4); setColor(37, 80); cout << "█"; setColor(195, 80); cout << "██"; gotoxy(x + 80, y + 4); setColor(37, 80); cout << "██"; setColor(195, 80); cout << "██";
+	gotoxy(x + 75, y + 5); setColor(37, 80); cout << "█"; setColor(195, 80); cout << "██"; gotoxy(x + 79, y + 5); setColor(37, 80); cout << "██"; setColor(195, 80); cout << "██";
+	gotoxy(x + 75, y + 6); setColor(37, 80); cout << "█"; setColor(195, 80); cout << "██████";
 }
