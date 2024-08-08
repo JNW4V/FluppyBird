@@ -196,8 +196,8 @@ void presentacion() {
 		backgroundInicio(radio,numCirculos, numEdificios);
 		titulo(x, y);
 		piso();
-
 		cuadroMenu();
+		// animacion del menu del pajaro
 		bool animating = true;
 		while (animating) {
 			if (_kbhit()) {
@@ -249,6 +249,8 @@ void mantenerJuego(int position[][width][2]) {
 	} while (op != 'q');
 
 }
+
+//falta poner la anim de los pajaros para el 1 vs 1
 void mantener1VS1(int jugador1[][width][2], int jugador2[][width][2]) { // -------------------------------- 1 vs 1
 	char op, po;
 	const int radio = 10;
@@ -285,7 +287,6 @@ void mantenerBoss(int position[][width][2]){
 	const int radio = 10;
 	const int numCirculos = 6;
 	const int numEdificios = 15;
-	int positionTubo[10][4][2];
 	int contMov = 0;
 	setColor(0, 0);
 	system("cls");
@@ -304,6 +305,7 @@ void mantenerBoss(int position[][width][2]){
 	} while (op != 'q');
 
 }
+// proximos mov del boss, por ahora solo parpadea su ojo
 void movBoss(int &contMov) {
 	int posXboss = 52 + 70, posYboss = 12;
 	if (contMov <= 10) {
@@ -694,7 +696,7 @@ void showImage2(int pos[][width][2], int pos2[][width][2]) {
 void showClearImage(int pos[][width][2]) {// --------------------------------------- limpia la region desde el pos inicial en showImage, esquina superior izquierda del pajaro en showImage, hasta la esquina inferior derecha
 	clearRegion(pos[0][0][0], pos[0][0][1], pos[2][0][0] + 10, pos[2][0][1]); // el mas 10 para q selecione hasta la esquina inferior derecha del pajaro desde le punto inicial (esquina superior izquierda)
 }
-
+// solo la imagen (no se utiliza en si)
 void bossImage() {
 	int posXboss = 52 + 70, posYboss = 12;
 	//frame 1
@@ -731,6 +733,7 @@ void canon() {
 	gotoxy(posXboss, posYboss + 3); setColor(0, 234); cout <<   "█ ▄█▄   █";
 	gotoxy(posXboss, posYboss + 4); setColor(0, 80); cout <<    "██  ███▀";
 }
+
 void changePos(int positions[][width][2], char op) {
 	int pos = 1, k = 0;
 	switch (op) {
