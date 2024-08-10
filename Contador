@@ -1,104 +1,125 @@
-void verificar(int posbird, int postub) {
-    auto start = std::chrono::high_resolution_clock::now();
-    int c=0;
-    do {
-        if (posbird = postub + 1) {
-            c++;
-            mostrarNum(c);
-            auto now = std::chrono::high_resolution_clock::now();
-            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();
-        }
-        this_thread::sleep_for(std::chrono::milliseconds(500));
-    } while (true);
+void mantenerJuego(int position[][width][2]) {
+	char op = 0;
+	int pajMov = 1;
+	const int radio = 10;
+	const int numCirculos = 6;
+	const int numEdificios = 15;
+	int posicionX = 88 + 48, posicionY = 41, contador = 0, contador1 = 0;
+	int positionTubo[10][4][2],c=0;
+	setColor(0, 0);
+	system("cls");
+	SetConsoleRegionColor(52, 0, 100, 54, 3, 80);
+	backgroundInicio(radio, numCirculos, numEdificios);
+	piso();
+	do {
+
+		OcultarCursor();
+		showImage(position, op);
+		newchoosePosition(op);
+		showClearImage(position); // limpia la region del pajaro despues de su movimiento (tiene como variable a position, basicamente como si fuera la sobra de showImage, solo q lo limpia)
+		changePos(position, op);
+		aparecerTubos(positionTubo, posicionX, posicionY, contador);
+		if (contador != 0)
+			validacionTubo(positionTubo, position, contador, op);
+			contadorTubos(positionTubo, position, contador1, contador,c);
+	} while (op != 'q');
+
+}
+void contadorTubos(int positionTubo[][4][2], int position[][width][2], int& contador1, int contador,int &c) {
+	for (int i = contador1 + 1; i <= contador; i++) {
+		if (positionTubo[i][1][0] < position[2][0][0]) {
+			c++;
+			mostrarNum(c);
+		}
+		if (contador1 == 4)
+			contador--;
+	}
 }
 void mostrarNum(int k) {
-    int x, y, p, q, r;
-    x = 10; y = 2;
-    p = 0;
-    q = 4;
-    r = 15;
-    char bq = (char)219;
-    //Num 0//
-    if (k % 10 == 0)
-        p = -6;
-
-        if (k == 0 || k % 10 == 0) {
-            gotoxy(x, y);     setColor(q, r); cout << " " << bq << bq << bq << " ";
-            gotoxy(x, y + 1); setColor(q, r); cout << bq << "   " << bq;
-            gotoxy(x, y + 2); setColor(q, r); cout << bq << "   " << bq;
-            gotoxy(x, y + 3); setColor(q, r); cout << bq << "   " << bq;
-            gotoxy(x, y + 4); setColor(q, r); cout << " " << bq << bq << bq << " ";
-        }
-        //Num 1
-        if (k == 1 || k % 10 == 1 || k==10) {
-            gotoxy(x + p, y);     setColor(q, r); cout << "  " << bq << " ";
-            gotoxy(x + p, y + 1); setColor(q, r); cout << " " << bq << bq << " "<< " ";
-            gotoxy(x + p, y + 2); setColor(q, r); cout << "  " << bq << " "<<" ";
-            gotoxy(x + p, y + 3); setColor(q, r); cout << "  " << bq << " "<<" ";
-            gotoxy(x + p, y + 4); setColor(q, r); cout << " " << bq << bq << bq;
-        }
-        //Num 2
-        if (k == 2 || k % 10 == 2 || k==20) {
-            gotoxy(x + p, y);     setColor(q, r); cout << " " << bq << bq << bq << " ";
-            gotoxy(x + p, y + 1); setColor(q, r); cout << bq << "   " << bq;
-            gotoxy(x + p, y + 2); setColor(q, r); cout << "  " << bq << bq << " ";
-            gotoxy(x + p, y + 3); setColor(q, r); cout << " " << bq << "   ";
-            gotoxy(x + p, y + 4); setColor(q, r); cout << bq << bq << bq << bq << bq;
-        }
-        //Num 3
-        if (k == 3 || k % 10 == 3 || k==30) {
-            gotoxy(x + p, y);     setColor(q, r); cout << " " << bq << bq << bq << " ";
-            gotoxy(x + p, y + 1); setColor(q, r); cout << bq << "   " << bq;
-            gotoxy(x + p, y + 2); setColor(q, r); cout << "  " << bq << bq << " ";
-            gotoxy(x + p, y + 3); setColor(q, r); cout << bq << "   " << bq;
-            gotoxy(x + p, y + 4); setColor(q, r); cout << " " << bq << bq << bq << " ";
-        }
-        //Num 4
-        if (k == 4 || k % 10 == 4 || k==40) {
-            gotoxy(x + p, y);     setColor(q, r); cout << "   " << bq << " ";
-            gotoxy(x + p, y + 1); setColor(q, r); cout << "  " << bq << bq << " ";
-            gotoxy(x + p, y + 2); setColor(q, r); cout << " " << bq << " " << bq << " ";
-            gotoxy(x + p, y + 3); setColor(q, r); cout << bq << bq << bq << bq << bq;
-            gotoxy(x + p, y + 4); setColor(q, r); cout << "   " << bq << " ";
-        }
-        //Num 5
-        if (k == 5 || k % 10 == 5 || k==50) {
-            gotoxy(x + p, y);     setColor(q, r); cout << bq << bq << bq << bq << bq;
-            gotoxy(x + p, y + 1); setColor(q, r); cout << bq << "    ";
-            gotoxy(x + p, y + 2); setColor(q, r); cout << bq << bq << bq << bq << " ";
-            gotoxy(x + p, y + 3); setColor(q, r); cout << "    " << bq;
-            gotoxy(x + p, y + 4); setColor(q, r); cout << bq << bq << bq << bq << " ";
-        }
-        //Num 6
-        if (k == 6 || k % 10 == 6 || k==60) {
-            gotoxy(x + p, y);     setColor(q, r); cout << " " << bq << bq << bq << " ";
-            gotoxy(x + p, y + 1); setColor(q, r); cout << bq << "    ";
-            gotoxy(x + p, y + 2); setColor(q, r); cout << bq << bq << bq << bq << " ";
-            gotoxy(x + p, y + 3); setColor(q, r); cout << bq << "   " << bq;
-            gotoxy(x + p, y + 4); setColor(q, r); cout << " " << bq << bq << bq << " ";
-        }
-        //Num 7
-        if (k == 7 || k % 10 == 7 || k==70) {
-            gotoxy(x + p, y);     setColor(q, r); cout << bq << bq << bq << bq << bq;
-            gotoxy(x + p, y + 1); setColor(q, r); cout << "   " << bq << " ";
-            gotoxy(x + p, y + 2); setColor(q, r); cout << "  " << bq << "  ";
-            gotoxy(x + p, y + 3); setColor(q, r); cout << " " << bq << "   ";
-            gotoxy(x + p, y + 4); setColor(q, r); cout << bq << "    ";
-        }
-        //Num 8
-        if (k == 8 || k % 10 == 8 || k==80) {
-            gotoxy(x + p, y);     setColor(q, r); cout << " " << bq << bq << bq << " ";
-            gotoxy(x + p, y + 1); setColor(q, r); cout << bq << "   " << bq;
-            gotoxy(x + p, y + 2); setColor(q, r); cout << " " << bq << bq << bq << " ";
-            gotoxy(x + p, y + 3); setColor(q, r); cout << bq << "   " << bq;
-            gotoxy(x + p, y + 4); setColor(q, r); cout << " " << bq << bq << bq << " ";
-        }
-        //Num 9
-        if (k == 9 || k % 10 == 9 || k==90) {
-            gotoxy(x + p, y);     setColor(q, r); cout << " " << bq << bq << bq << " ";
-            gotoxy(x + p, y + 1); setColor(q, r); cout << bq << "   " << bq;
-            gotoxy(x + p, y + 2); setColor(q, r); cout << " " << bq << bq << bq << bq;
-            gotoxy(x + p, y + 3); setColor(q, r); cout << "    " << bq;
-            gotoxy(x + p, y + 4); setColor(q, r); cout << " " << bq << bq << bq << " ";
-        }
+	int x = 102, y = 45;
+	int p = 0;
+	int q = 15, r = 222;
+	k = k / 4;
+	if (k % 10 == 0)
+		p = -6;
+	if (k % 10 == 0 || k == 0) {
+		// Num 0
+		gotoxy(x, y);     setColor(q, r); cout << " " << "█" << "█" << "█" << " ";
+		gotoxy(x, y + 1); setColor(q, r); cout << "█" << "   " << "█";
+		gotoxy(x, y + 2); setColor(q, r); cout << "█" << "   " << "█";
+		gotoxy(x, y + 3); setColor(q, r); cout << "█" << "   " << "█";
+		gotoxy(x, y + 4); setColor(q, r); cout << " " << "█" << "█" << "█" << " ";
+	}
+	if (k % 10 == 1 || k == 10) {
+		// Num 1
+		gotoxy(x + p, y);     setColor(q, r); cout << "  " << "█" << " ";
+		gotoxy(x + p, y + 1); setColor(q, r); cout << " " << "█" << "█" << " " << " ";
+		gotoxy(x + p, y + 2); setColor(q, r); cout << "  " << "█" << " " << " ";
+		gotoxy(x + p, y + 3); setColor(q, r); cout << "  " << "█" << " " << " ";
+		gotoxy(x + p, y + 4); setColor(q, r); cout << " " << "█" << "█" << "█";
+	}
+	if (k % 10 == 2 || k == 20) {
+		// Num 2
+		gotoxy(x + p, y);     setColor(q, r); cout << " " << "█" << "█" << "█" << " ";
+		gotoxy(x + p, y + 1); setColor(q, r); cout << "█" << "   " << "█";
+		gotoxy(x + p, y + 2); setColor(q, r); cout << "  " << "█" << "█" << " ";
+		gotoxy(x + p, y + 3); setColor(q, r); cout << " " << "█" << "   ";
+		gotoxy(x + p, y + 4); setColor(q, r); cout << "█" << "█" << "█" << "█" << "█";
+	}
+	if (k % 10 == 3 || k == 30) {
+		// Num 3
+		gotoxy(x + p, y);     setColor(q, r); cout << " " << "█" << "█" << "█" << " ";
+		gotoxy(x + p, y + 1); setColor(q, r); cout << "█" << "   " << "█";
+		gotoxy(x + p, y + 2); setColor(q, r); cout << "  " << "█" << "█" << " ";
+		gotoxy(x + p, y + 3); setColor(q, r); cout << "█" << "   " << "█";
+		gotoxy(x + p, y + 4); setColor(q, r); cout << " " << "█" << "█" << "█" << " ";
+	}
+	if (k % 10 == 4 || k == 40) {
+		// Num 4
+		gotoxy(x + p, y);     setColor(q, r); cout << "   " << "█" << " ";
+		gotoxy(x + p, y + 1); setColor(q, r); cout << "  " << "█" << "█" << " ";
+		gotoxy(x + p, y + 2); setColor(q, r); cout << " " << "█" << " " << "█" << " ";
+		gotoxy(x + p, y + 3); setColor(q, r); cout << "█" << "█" << "█" << "█" << "█";
+		gotoxy(x + p, y + 4); setColor(q, r); cout << "   " << "█" << " ";
+	}
+	if (k % 10 == 5 || k == 50) {
+		// Num 5
+		gotoxy(x + p, y);     setColor(q, r); cout << "█" << "█" << "█" << "█" << "█";
+		gotoxy(x + p, y + 1); setColor(q, r); cout << "█" << "    ";
+		gotoxy(x + p, y + 2); setColor(q, r); cout << "█" << "█" << "█" << "█" << " ";
+		gotoxy(x + p, y + 3); setColor(q, r); cout << "    " << "█";
+		gotoxy(x + p, y + 4); setColor(q, r); cout << "█" << "█" << "█" << "█" << " ";
+	}
+	if (k % 10 == 6 || k == 60) {
+		// Num 6
+		gotoxy(x + p, y);     setColor(q, r); cout << " " << "█" << "█" << "█" << " ";
+		gotoxy(x + p, y + 1); setColor(q, r); cout << "█" << "    ";
+		gotoxy(x + p, y + 2); setColor(q, r); cout << "█" << "█" << "█" << "█" << " ";
+		gotoxy(x + p, y + 3); setColor(q, r); cout << "█" << "   " << "█";
+		gotoxy(x + p, y + 4); setColor(q, r); cout << " " << "█" << "█" << "█" << " ";
+	}
+	if (k % 10 == 7 || k == 70) {
+		// Num 7
+		gotoxy(x + p, y);     setColor(q, r); cout << "█" << "█" << "█" << "█" << "█";
+		gotoxy(x + p, y + 1); setColor(q, r); cout << "   " << "█" << " ";
+		gotoxy(x + p, y + 2); setColor(q, r); cout << "  " << "█" << "  ";
+		gotoxy(x + p, y + 3); setColor(q, r); cout << " " << "█" << "   ";
+		gotoxy(x + p, y + 4); setColor(q, r); cout << "█" << "    ";
+	}
+	if (k % 10 == 8 || k == 80) {
+		// Num 8
+		gotoxy(x + p, y);     setColor(q, r); cout << " " << "█" << "█" << "█" << " ";
+		gotoxy(x + p, y + 1); setColor(q, r); cout << "█" << "   " << "█";
+		gotoxy(x + p, y + 2); setColor(q, r); cout << " " << "█" << "█" << "█" << " ";
+		gotoxy(x + p, y + 3); setColor(q, r); cout << "█" << "   " << "█";
+		gotoxy(x + p, y + 4); setColor(q, r); cout << " " << "█" << "█" << "█" << " ";
+	}
+	if (k % 10 == 9 || k == 90) {
+		// Num 9
+		gotoxy(x + p, y);     setColor(q, r); cout << " " << "█" << "█" << "█" << " ";
+		gotoxy(x + p, y + 1); setColor(q, r); cout << "█" << "   " << "█";
+		gotoxy(x + p, y + 2); setColor(q, r); cout << " " << "█" << "█" << "█" << "█";
+		gotoxy(x + p, y + 3); setColor(q, r); cout << "    " << "█";
+		gotoxy(x + p, y + 4); setColor(q, r); cout << " " << "█" << "█" << "█" << " ";
+	}
 }
