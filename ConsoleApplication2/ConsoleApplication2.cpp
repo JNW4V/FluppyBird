@@ -9,6 +9,7 @@
 #include<stdlib.h>
 #include <string.h>
 #include <vector>
+#include <fstream>
 #define width 9
 #define height 3
 
@@ -120,6 +121,70 @@ void drawBuilding(int startX, int startY, int widthE, int heightE, int color, in
 	}
 }
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+void pantallaGameOver() {
+	int posXover = 52 + 24, posYover = 5;
+	gotoxy(posXover, posYover);
+	setColor(30, 80); cout << "▄▄▄▄▄▄▄ ▄▄▄▄ ▄▄▄ ▄▄▄▄▄▄▄▄▄▄"; gotoxy(posXover + 28, posYover); cout << "▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄ ";
+	gotoxy(posXover, posYover + 1);
+	setColor(30, 15); cout << "█ ▄▄▄▄██▀▄ ██▄ ▀█▀ ▄█▄ ▄▄ █"; gotoxy(posXover + 28, posYover + 1); cout << "█ ▄▄ █▄ █ ▄█▄ ▄▄ █▄ ▄▄▀█";
+	gotoxy(posXover, posYover + 2);
+	setColor(23, 15); cout << "█ ██▄ ██ ▀ █"; setColor(23, 80); cout << "▄"; setColor(23, 15); cout << "█ █▄█ █"; setColor(23, 80); cout << "▄"; setColor(23, 15); cout << "█ ▄█▀█"; gotoxy(posXover + 28, posYover + 2); cout << "█ ██ ██▄▀▄███ ▄█▀██ ▄ ▄█";
+	gotoxy(posXover, posYover + 3);
+	setColor(23, 15); cout << "█▄▄▄▄▄█▄▄█▄▄█▄▄▄█▄▄▄█▄▄▄▄▄█"; gotoxy(posXover + 28, posYover + 3); cout << "█▄▄▄▄█"; gotoxy(posXover + 35, posYover + 3); cout << "█▄█"; gotoxy(posXover + 39, posYover + 3); cout << "█▄▄▄▄▄█▄▄█▄▄█";
+}
+void cuadroScreen(int posXover, int posYover) {
+	setColor(15, 202);
+	gotoxy(posXover, posYover);
+	cout << "█▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█";
+	gotoxy(posXover, posYover + 1);
+	cout << "█                     █";
+	gotoxy(posXover, posYover + 2);
+	cout << "█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█";
+}
+void puntaje(int posXptj, int posYptj) {
+	gotoxy(posXptj, posYptj);
+	setColor(0, 222); cout << " ▄▄▄";
+	gotoxy(posXptj, posYptj + 1);
+	setColor(0, 15); cout << "█▀ █";
+	gotoxy(posXptj, posYptj + 2);
+	setColor(0, 15); cout << "██ █"; setColor(0, 222); cout << "▄";
+	gotoxy(posXptj, posYptj + 3);
+	setColor(0, 15); cout << "█▄▄▄█";
+}
+void puntajeScreen(int posXover, int posYover) {
+	gotoxy(posXover, posYover);
+	setColor(172,80); cout << " ▄"; setColor(172, 229); cout << "█▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█"; setColor(172,80); cout << "▄";
+	setColor(172, 222);
+	gotoxy(posXover, posYover + 1);
+	cout << "█▀                         ▀█";
+	gotoxy(posXover, posYover + 2);
+	cout << "█                           █";
+	gotoxy(posXover, posYover + 3);
+	cout << "█                           █";
+	gotoxy(posXover, posYover + 4);
+	cout << "█                           █";
+	gotoxy(posXover, posYover + 5);
+	cout << "█                           █";
+	gotoxy(posXover, posYover + 6);
+	cout << "█                           █";
+	gotoxy(posXover, posYover + 7);
+	cout << "█                           █";
+	gotoxy(posXover, posYover + 8);
+	cout << "█                           █";
+	gotoxy(posXover, posYover + 9);
+	cout << "█                           █";
+	gotoxy(posXover, posYover + 10);
+	cout << "█                           █";
+	gotoxy(posXover, posYover + 11);
+	cout << "█                           █";
+	gotoxy(posXover, posYover + 12);
+	cout << "█                           █";
+	gotoxy(posXover, posYover + 13);
+	cout << "█▄                         ▄█";
+	gotoxy(posXover, posYover + 14);
+	setColor(172, 80); cout << " ▀"; setColor(172, 215); cout << "█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█"; setColor(172, 80); cout << "▀";
+}
+
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 void OcultarCursor();
 void gotoxy(int x, int y);
@@ -143,6 +208,13 @@ void backgroundInicio(int radius, int numCircles, int numBuildings);
 void teclas(int b, int radio, int numCirculos, int x, int y);
 void personaje(int c, int radio, int numCirculos, int x, int y);
 // 1 vs 1
+void showPuntaje(int k, int x, int y);
+int mayorPunto();
+void derrota(int c);
+void puntos(int c);
+void vidaBoss(int rest, int dmg);
+void imprimirDigito(int digito, int x, int y);
+void limpiarPantalla(int x1, int y1, int x2, int y2);
 void mantenerBoss(int position[][width][2]);
 void mantener1VS1(int jugador1[][width][2], int jugador2[][width][2]);
 void showImage2(int pos[][width][2], int pos2[][width][2]);
@@ -157,8 +229,8 @@ void movPiso(int& pisoMov);
 void subeBaja(int& contador, int& posYboss);
 
 void aparecerTubos(int position[][4][2], int  posicionX, int posicionY, int& contador);
-void pantallaDerrota(char& op);
-void validacionTubo(int positionTubo[][4][2], int position[][width][2], int contador, char& op);
+void pantallaDerrota(char& op, int& pisoMov, int& posicionX, int& posicionY, int& contador, int& contador1, int position[3][width][2], int &c, int radio, int numCirculos, int numEdificios);
+void validacionTubo(char& op, int& pisoMov, int& posicionX, int& posicionY, int& contador, int& contador1, int positionTubo[][4][2], int position[3][width][2], int &c, int radio, int numCirculos, int numEdificios);
 void contadorTubos(int positionTubo[][4][2], int position[][width][2], int& contador1, int contador, int& c);
 void mostrarNum(int k);
 int main() {
@@ -179,7 +251,7 @@ void presentacion() {
 	int op, a = 0, b = 0, c = 0;
 	int x = 60, y = 2;
 	int pajMov = 1, pisoMov = 0;
-	int Xpaja = 42 + 52, Ypaja = 24, cMovXpaja = 1, verificarYpaja = 24;
+	int Xpaja = 44 + 52, Ypaja = 26, cMovXpaja = 1, verificarYpaja = 26;
 	do {
 		setColor(0, 0);  // color negro de fondo y texto a toda la consola (despues cambia cierta region)
 		int posXpaja = 25 + 52, posYpaja = 12;
@@ -219,23 +291,19 @@ void presentacion() {
 				Ypaja++;
 			else if (cMovXpaja == 40)
 				Ypaja--;
-			else if (cMovXpaja == 50)
+			else if (cMovXpaja == 45)
 				Ypaja--;
-			else if (cMovXpaja == 55)
+			else if (cMovXpaja == 50)
 				Ypaja--;
 			else if (cMovXpaja == 60)
 				Ypaja--;
-			else if (cMovXpaja == 70)
-				Ypaja--;
 			else if (cMovXpaja == 90)
-				Ypaja++;
-			else if (cMovXpaja == 100)
 				Ypaja++;
 			else if (cMovXpaja == 105)
 				cMovXpaja = 0;
 
 			if (Ypaja != verificarYpaja)
-				clearRegion(52 + 42, 20, 52 + 52, 30);
+				clearRegion(52 + 44, 25, 52 + 54, 31);
 			verificarYpaja = Ypaja;
 			showImageMenu(pajMov, Xpaja, Ypaja);
 			movPiso(pisoMov);
@@ -250,19 +318,17 @@ void presentacion() {
 		case 3: mantenerBoss(position); break;
 		}
 	} while (op != 4);
-	gotoxy(52 + 40, 19);
-	cout << "Gracias por jugar ..." << endl;
 	gotoxy(27, 50);
 }
 
 void mantenerJuego(int position[][width][2]) {
-	char op = 0;
+	char op=0;
 	int pisoMov = 1;
 	const int radio = 10;
 	const int numCirculos = 6;
 	const int numEdificios = 15;
 	int posicionX = 88 + 48, posicionY = 41, contador = 0, contador1 = 0;
-	int positionTubo[10][4][2], c = 0;;
+	int positionTubo[10][4][2], c = 0;
 	setColor(0, 0);
 	system("cls");
 	SetConsoleRegionColor(52, 0, 100, 54, 3, 80);
@@ -277,7 +343,7 @@ void mantenerJuego(int position[][width][2]) {
 		changePos(position, op);
 		aparecerTubos(positionTubo, posicionX, posicionY, contador);
 		if (contador != 0)
-			validacionTubo(positionTubo, position, contador, op);
+			validacionTubo(op, pisoMov, posicionX, posicionY, contador, contador1, positionTubo, position, c, radio, numCirculos, numEdificios);
 		contadorTubos(positionTubo, position, contador1, contador, c);
 	} while (op != 'q');
 
@@ -291,7 +357,7 @@ void mantener1VS1(int jugador1[][width][2], int jugador2[][width][2]) { // -----
 	const int numCirculos = 6;
 	const int numEdificios = 15;
 	int posicionX = 88 + 48, posicionY = 41, contador = 0, contador1 = 0;
-	int positionTubo[10][4][2];
+	int positionTubo[10][4][2], c = 0;
 	setColor(0, 0);
 	system("cls");
 	SetConsoleRegionColor(52, 0, 100, 54, 3, 80);
@@ -309,10 +375,9 @@ void mantener1VS1(int jugador1[][width][2], int jugador2[][width][2]) { // -----
 		changePos2(jugador2, po);
 		aparecerTubos(positionTubo, posicionX, posicionY, contador);
 		if (contador != 0) {
-			validacionTubo(positionTubo, jugador1, contador, op);
-			validacionTubo(positionTubo, jugador2, contador, op);
+			validacionTubo(op, pisoMov, posicionX, posicionY, contador, contador1, positionTubo, jugador1, c, radio, numCirculos, numEdificios);
+			validacionTubo(op, pisoMov, posicionX, posicionY, contador, contador1, positionTubo, jugador2, c, radio, numCirculos, numEdificios);
 		}
-		//contadorTubos(positionTubo, position, contador1, contador);
 	} while (op != 'q');
 }
 
@@ -527,16 +592,218 @@ void mostrarNum(int k) {
 		gotoxy(x + p, y + 4); setColor(q, r); cout << " " << "█" << "█" << "█" << " ";
 	}
 }
-void pantallaDerrota(char& op) {
-	cout << "Hola Mundo";
-	op = 'q';
+void pantallaDerrota(char& op, int &pisoMov, int &posicionX, int &posicionY, int &contador, int &contador1, int position[3][width][2], int &c, int radio, int numCirculos, int numEdificios) {
+	do {
+		pantallaGameOver();
+		puntajeScreen(52 + 35, 12);
+		derrota(c);
+		int x = 52 + 42, y = 31;
+
+		//ponen los puntajes (ejemplo)
+
+		cuadroScreen(52 + 38, 30); gotoxy(x, y + 0); cout << "[1]  REINTENTAR";
+		cuadroScreen(52 + 38, 34); gotoxy(x, y + 4); cout << "[2]  M E N U" << endl;
+
+		pisoMov = 1;
+		posicionX = 88 + 48;
+		posicionY = 41;
+		contador = 0;
+		contador1 = 0;
+		c = 0;
+		int posXpaja = 25 + 52, posYpaja = 12;
+		int position[3][width][2] = {
+		{{posXpaja,posYpaja},{posXpaja + 1,posYpaja},{posXpaja + 2,posYpaja},{posXpaja + 3,posYpaja},{posXpaja + 4,posYpaja},{posXpaja + 5,posYpaja},{posXpaja + 6,posYpaja},{posXpaja + 7,posYpaja},{posXpaja + 8,posYpaja}},
+		{{posXpaja,posYpaja + 1},{posXpaja + 1,posYpaja + 1},{posXpaja + 2,posYpaja + 1},{posXpaja + 3,posYpaja + 1},{posXpaja + 4,posYpaja + 1},{posXpaja + 5,posYpaja + 1},{posXpaja + 6,posYpaja + 1},{posXpaja + 7,posYpaja + 1},{posXpaja + 8,posYpaja + 1}},
+		{{posXpaja,posYpaja + 2},{posXpaja + 1,posYpaja + 2},{posXpaja + 2,posYpaja + 2},{posXpaja + 3,posYpaja + 2},{posXpaja + 4,posYpaja + 2},{posXpaja + 5,posYpaja + 2},{posXpaja + 6,posYpaja + 2},{posXpaja + 7,posYpaja + 2},{posXpaja + 8,posYpaja + 2}}
+		};
+		char operador = _getch();
+		switch (operador) {
+		case '1':
+			op = 'a';
+			setColor(0, 0);
+			system("cls");
+			SetConsoleRegionColor(52, 0, 100, 54, 3, 80);
+			backgroundInicio(radio, numCirculos, numEdificios);
+			piso();
+			break; // op random q no sea q
+		case '2': op = 'q'; break;
+		}
+	} while (op != 'q' && op != 'a');
 }
-void validacionTubo(int positionTubo[][4][2], int position[][width][2], int contador, char& op) {
+
+void derrota(int c) {
+	puntos(c);
+}
+void puntos(int c) {
+	fstream record("puntuacion.txt", ios::app | ios::in);
+	record<< c << endl;
+	setColor(202, 222);
+	gotoxy(52 + 46, 14);
+	cout << "PUNTAJE";
+	showPuntaje(c, 52 + 47, 15);
+	setColor(202, 222);
+	gotoxy(52 + 43, 20);
+	cout << "MEJOR PUNTAJE";
+	showPuntaje(mayorPunto(), 52 + 47, 21);
+	record.close();
+}
+int mayorPunto() {
+	int x, may = -1;
+	ifstream record("puntuacion.txt");
+	while (record >> x) {
+		if (x > may)
+			may = x;
+	}
+	record.close();
+	return may;
+}
+
+void vidaBoss(int rest, int dmg) {
+	int x, y, q, r, k, p, s;
+	p = 0; s = 0;
+	x = 102; y = 45;
+	q = 15; r = 222;
+	k = rest;
+
+	while (k >= rest - dmg) {
+		int unidades = k % 10;
+		int decenas = (k / 10) % 10;
+		int centenas = (k / 100) % 10;
+		int unidadesMil = (k / 1000) % 10;
+		limpiarPantalla(x - 20, y, x + 10, y + 5);
+		// Imprimir las unidades
+		if (k >= 1000) {
+			imprimirDigito(unidadesMil, x - 15, y);
+			imprimirDigito(centenas, x - 10, y);
+			imprimirDigito(decenas, x - 5, y);
+			imprimirDigito(unidades, x, y);
+		}
+		else
+			if (k >= 100) {
+				imprimirDigito(centenas, x - 10, y);
+				imprimirDigito(decenas, x - 5, y);
+				imprimirDigito(unidades, x, y);
+			}
+			else
+				if (k >= 10) {
+					imprimirDigito(decenas, x - 5, y);
+					imprimirDigito(unidades, x, y);
+				}
+				else {
+					imprimirDigito(unidades, x, y);
+				}
+		k--;
+	}
+}
+
+void showPuntaje(int k,int x,int y) {
+	int unidades = k % 10;
+	int decenas = (k / 10) % 10;
+	int centenas = (k / 100) % 10;
+	int unidadesMil = (k / 1000) % 10;
+	if (k >= 1000) {
+		imprimirDigito(unidadesMil, x - 15, y);
+		imprimirDigito(centenas, x - 10, y);
+		imprimirDigito(decenas, x - 5, y);
+		imprimirDigito(unidades, x, y);
+	}
+	else
+		if (k >= 100) {
+			imprimirDigito(centenas, x - 10, y);
+			imprimirDigito(decenas, x - 5, y);
+			imprimirDigito(unidades, x, y);
+		}
+		else
+			if (k >= 10) {
+				imprimirDigito(decenas, x - 3, y);
+				imprimirDigito(unidades, x + 2, y);
+			}
+			else
+				imprimirDigito(unidades, x, y);
+}
+
+void imprimirDigito(int digito, int x, int y) {
+	int q, r;
+	q = 15; r = 0;
+	switch (digito) {
+	case 0:
+		gotoxy(x, y); setColor(0, 222); cout <<    "▄▄▄▄▄▄";
+		gotoxy(x, y + 1); setColor(0, 15); cout << "█ ▄▄ █";
+		gotoxy(x, y + 2); setColor(0, 15); cout << "█ ██ █";
+		gotoxy(x, y + 3); setColor(0, 15); cout << "█▄▄▄▄█";
+		break;
+	case 1:
+		gotoxy(x + 1, y); setColor(0, 222); cout << "▄▄▄";
+		gotoxy(x, y + 1); setColor(0, 15); cout << "█▀ █";
+		gotoxy(x, y + 2); setColor(0, 15); cout << "██ █"; setColor(0, 222); cout << "▄";
+		gotoxy(x, y + 3); setColor(0, 15); cout << "█▄▄▄█";
+		break;
+	case 2:
+		gotoxy(x + 1, y); setColor(0, 222); cout << "▄▄▄▄";
+		gotoxy(x, y + 1); setColor(0, 15); cout << "█▀▄▄▀█";
+		gotoxy(x, y + 2); setColor(0, 15); cout << "██▀▄██";
+		gotoxy(x, y + 3); setColor(0, 15); cout << "█▄▄▄▄█";
+		break;
+	case 3:
+		gotoxy(x, y); setColor(0, 222); cout <<    "▄▄▄▄▄▄";
+		gotoxy(x, y + 1); setColor(0, 15); cout << "█▄▄▄ █";
+		gotoxy(x, y + 2); setColor(0, 222); cout << "▄"; setColor(0, 15); cout << "█▄▄ █";
+		gotoxy(x, y + 3); setColor(0, 15); cout << "█▄▄▄▄█";
+		break;
+	case 4:
+		gotoxy(x, y); setColor(0, 222); cout <<    "▄▄▄▄▄";
+		gotoxy(x, y + 1); setColor(0, 15); cout << "█ █ █";
+		gotoxy(x, y + 2); setColor(0, 15); cout << "█▄▄ █"; setColor(0, 222); cout << "▄";
+		gotoxy(x + 1, y + 3); setColor(0, 15); cout << "█▄▄▄█";
+		break;
+	case 5:
+		gotoxy(x, y); setColor(0, 222); cout <<    "▄▄▄▄▄▄";
+		gotoxy(x, y + 1); setColor(0, 15); cout << "█ ▄▄▄█";
+		gotoxy(x, y + 2); setColor(0, 15); cout << "█▄▄▄ █";
+		gotoxy(x, y + 3); setColor(0, 15); cout << "█▄▄▄▄█";
+		break;
+	case 6:
+		gotoxy(x, y); setColor(0, 222); cout <<    "▄▄▄▄▄▄";
+		gotoxy(x, y + 1); setColor(0, 15); cout << "█ ▄▄▄█";
+		gotoxy(x, y + 2); setColor(0, 15); cout << "█ ▄▄ █";
+		gotoxy(x, y + 3); setColor(0, 15); cout << "█▄▄▄▄█";
+		break;
+	case 7:
+		gotoxy(x, y); setColor(0, 222); cout <<       "▄▄▄▄▄▄";
+		gotoxy(x, y + 1); setColor(0, 15); cout <<    "█▄▄▄ █";
+		gotoxy(x + 1, y + 2); setColor(0, 222); cout << "▄"; setColor(0, 15); cout << "█ █"; setColor(0, 222); cout << "▀";
+		gotoxy(x + 1, y + 3); setColor(0, 15); cout << "█▄█"; setColor(0, 222); cout << "▀";
+		break;
+	case 8:
+		gotoxy(x + 1, y); setColor(0, 222); cout <<    "▄▄▄▄";
+		gotoxy(x, y + 1); setColor(0, 15); cout << "█▀▄▄▀█";
+		gotoxy(x, y + 2); setColor(0, 15); cout << "█▀▄▄▀█";
+		gotoxy(x, y + 3); setColor(0, 222); cout << "▀"; setColor(0, 15); cout << "█▄▄█"; setColor(0, 222); cout << "▀";
+		break;
+	case 9:
+		gotoxy(x, y); setColor(0, 222); cout <<    "▄▄▄▄▄▄";
+		gotoxy(x, y + 1); setColor(0, 15); cout << "█ ▄▄ █";
+		gotoxy(x, y + 2); setColor(0, 15); cout << "█▄▄▄ █";
+		gotoxy(x, y + 3); setColor(0, 15); cout << "█▄▄▄▄█";
+		break;
+	}
+}
+
+void limpiarPantalla(int x1, int y1, int x2, int y2) {
+	for (int i = y1; i <= y2; ++i) {
+		gotoxy(x1, i);
+		for (int j = x1; j <= x2; ++j) {
+			cout << " ";
+		}
+	}
+}
+
+void validacionTubo(char& op, int& pisoMov, int& posicionX, int& posicionY, int& contador, int& contador1, int positionTubo[][4][2], int position[3][width][2], int &c, int radio, int numCirculos, int numEdificios) {
 	for (int i = 1; i <= contador; i++) {
 		if ((positionTubo[i][0][0] <= position[0][8][0] && positionTubo[i][1][0] >= position[0][0][0]) || (positionTubo[i][0][0] <= position[2][0][0] && positionTubo[i][1][0] >= position[2][0][0])) {
 			if (position[0][0][1] > positionTubo[i][0][1] && position[2][0][1] < positionTubo[i][2][1]) {}
 			else
-				pantallaDerrota(op);
+				pantallaDerrota(op, pisoMov, posicionX, posicionY, contador, contador1, position, c, radio, numCirculos, numEdificios);
 		}
 	}
 	//Esquinas: position [0-2][0-8][0-1] 
@@ -560,41 +827,6 @@ void backgroundInicio(int radius, int numCircles, int numBuildings) {
 	}
 }
 
-/*void backgroundGame(int radius, int numCircles, int numBuildings) { // para q en juego el fondo este estatico (tavia inutil)
-
-	for (int k = 0; k < numCircles; k++) { // Número de nubes
-		int offsetX = k * 16; // De 15 en 15 píxeles
-		int offsetY = 1 + 2; // Varía aleatoriamente la posición altura de las nubes
-		drawCircle(radius, radius, radius, 52 + offsetX, 30 + offsetY, 194, 194); // Ajuste de posición de la nube
-	}
-
-	// Inicializa la semilla para números aleatorios
-	for (int i = 0; i < numBuildings; ++i) {
-		int heightE = 5; // Altura aleatoria entre 1 y maxHeight
-		int widthE = 3 + (2 + 1); // Ancho aleatorio entre 1 y maxWidth
-		int offsetX = i * (4 + 2); // Espacio entre edificios
-
-		drawBuilding(5 + 52 + offsetX, 41, widthE, heightE, 151, 151); // Color gris con fondo negro
-	}
-}
-*/
-
-/*
-void play(int a, int radio, int numCirculos, int x, int y) { // inservible
-	do {
-
-		system("color 37");
-		titulo(x, y);
-		gotoxy(27, 12);
-		setColor(6, 14);
-		// --------------------------------
-		cout << "Juega (cualquier numero) hasta q pierdas (1): ";
-		cin >> a;
-	} while (a != 1);
-	gotoxy(27, 14);
-	system("pause");
-}
-*/
 void teclas(int b, int radio, int numCirculos, int x, int y) {
 	do {
 		titulo(x, y);
@@ -984,22 +1216,13 @@ void newchoosePosition2(char& op) { // -----------------------------------------
 	}
 }
 
-// --------------------------------------------------------
+// -------------------------------------------------------- setColor(202, 222);
 void cuadroMenu() {
-	setColor(222,80);
-	int x=77, y=13;
-	for (int i = 0; i < 7; ++i) {
-		gotoxy(x, y + i);
-		for (int j = 0; j < 50; ++j) {
-			cout << "█";
-		}
-		cout << endl;
-	}
-	gotoxy(x + 3, y + 1); setColor(202, 222); cout << "[1] Jugar" << endl;
-	gotoxy(x + 3, y + 2); cout << "[2] 1 VS 1" << endl;
-	gotoxy(x + 3, y + 3); cout << "[3] VS Jefe" << endl;
-	gotoxy(x + 3, y + 4); cout << "[4] Salir" << endl;
-	gotoxy(x + 3, y + 5); cout << "Ingrese una opción (1-4) : ";
+	int x= 52 + 42, y = 11;
+	cuadroScreen(52 + 38, 10); gotoxy(x, y + 0); cout << "[1]  J U G A R" ;
+	cuadroScreen(52 + 38, 14); gotoxy(x, y + 4); cout << "[2]  1  V S  1" << endl;
+	cuadroScreen(52 + 38, 18); gotoxy(x - 1, y + 8); cout << "[3]  V S  J E F E" << endl;
+	cuadroScreen(52 + 38, 22); gotoxy(x, y + 12); cout << "[4]  S A L I R" << endl;
 }
 void movPiso(int &pisoMov) {
 	if (pisoMov == 1) {
