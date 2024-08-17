@@ -1,0 +1,152 @@
+int mayorPunto();
+void derrota(int c);
+void puntos(int c);
+void vidaBoss(int rest, int dmg);
+void imprimirDigito(int digito, int x, int y);
+void limpiarPantalla(int x1, int y1, int x2, int y2);
+
+void derrota(int c) {
+	puntos(c);
+}
+void puntos(int c) {
+	fstream record("puntuacion.txt", ios::app | ios::in);
+	record << c << endl;
+	gotoxy(20, 20);
+	cout << "MEJOR PUNTUACION: " << mayorPunto() << endl;
+	cout << "PUNTUACION ACTUAL: " << c << endl;
+	record.close();
+	system("pause");
+}
+int mayorPunto() {
+	int x,may = -1;
+	ifstream record("puntuacion.txt");
+	while (record >> x) {
+		if (x > may)
+			may = x;
+	}
+	record.close();
+	return may;
+}
+// rest: La vida que le queda al boss, dmg: daño que se le hace al boss.
+//Lo hice un while para que baje de 1 en 1 hasta la cantidad que se le quito.
+void vidaBoss(int rest, int dmg) {
+	int x, y, q, r, k, p, s;
+	p = 0; s = 0;
+	x = 102; y = 45;
+	q = 15; r = 222;
+	k = rest;
+
+	while (k >= rest - dmg) {
+		int unidades = k % 10;
+		int decenas = (k / 10) % 10;
+		int centenas = (k / 100) % 10;
+		int unidadesMil = (k / 1000) % 10;
+		limpiarPantalla(x - 20, y, x + 10, y + 5);
+		// Imprimir las unidades
+		if (k >= 1000) {
+			imprimirDigito(unidadesMil, x - 15, y);
+			imprimirDigito(centenas, x - 10, y);
+			imprimirDigito(decenas, x - 5, y);
+			imprimirDigito(unidades, x, y);
+		}
+		else 
+      if (k >= 100) {
+			  imprimirDigito(centenas, x - 10,y);
+			  imprimirDigito(decenas, x - 5, y);
+			  imprimirDigito(unidades, x, y);
+		}
+		else 
+      if (k >= 10) {
+			imprimirDigito(decenas, x - 5, y);
+			imprimirDigito(unidades, x, y);
+		  }
+		else {
+			imprimirDigito(unidades, x, y);
+		}
+		k--;
+	}
+}
+void limpiarPantalla(int x1, int y1, int x2, int y2) {
+	for (int i = y1; i <= y2; ++i) {
+		gotoxy(x1, i);
+		for (int j = x1; j <= x2; ++j) {
+			cout << " ";
+		}
+	}
+}
+void imprimirDigito(int digito, int x, int y) {
+	int q, r;
+	q = 15; r = 222;
+	switch (digito) {
+	case 0:
+		gotoxy(x, y);     setColor(q, r); cout << "███";
+		gotoxy(x, y + 1); setColor(q, r); cout << "█ █";
+		gotoxy(x, y + 2); setColor(q, r); cout << "█ █";
+		gotoxy(x, y + 3); setColor(q, r); cout << "█ █";
+		gotoxy(x, y + 4); setColor(q, r); cout << "███";
+		break;
+	case 1:
+		gotoxy(x, y);     setColor(q, r); cout << "  █";
+		gotoxy(x, y + 1); setColor(q, r); cout << "  █";
+		gotoxy(x, y + 2); setColor(q, r); cout << "  █";
+		gotoxy(x, y + 3); setColor(q, r); cout << "  █";
+		gotoxy(x, y + 4); setColor(q, r); cout << "  █";
+		break;
+	case 2:
+		gotoxy(x, y);     setColor(q, r); cout << "███";
+		gotoxy(x, y + 1); setColor(q, r); cout << "  █";
+		gotoxy(x, y + 2); setColor(q, r); cout << "███";
+		gotoxy(x, y + 3); setColor(q, r); cout << "█  ";
+		gotoxy(x, y + 4); setColor(q, r); cout << "███";
+		break;
+	case 3:
+		gotoxy(x, y);     setColor(q, r); cout << "███";
+		gotoxy(x, y + 1); setColor(q, r); cout << "  █";
+		gotoxy(x, y + 2); setColor(q, r); cout << "███";
+		gotoxy(x, y + 3); setColor(q, r); cout << "  █";
+		gotoxy(x, y + 4); setColor(q, r); cout << "███";
+		break;
+	case 4:
+		gotoxy(x, y);     setColor(q, r); cout << "█ █";
+		gotoxy(x, y + 1); setColor(q, r); cout << "█ █";
+		gotoxy(x, y + 2); setColor(q, r); cout << "███";
+		gotoxy(x, y + 3); setColor(q, r); cout << "  █";
+		gotoxy(x, y + 4); setColor(q, r); cout << "  █";
+		break;
+	case 5:
+		gotoxy(x, y);     setColor(q, r); cout << "███";
+		gotoxy(x, y + 1); setColor(q, r); cout << "█  ";
+		gotoxy(x, y + 2); setColor(q, r); cout << "███";
+		gotoxy(x, y + 3); setColor(q, r); cout << "  █";
+		gotoxy(x, y + 4); setColor(q, r); cout << "███";
+		break;
+	case 6:
+		gotoxy(x, y);     setColor(q, r); cout << "███";
+		gotoxy(x, y + 1); setColor(q, r); cout << "█  ";
+		gotoxy(x, y + 2); setColor(q, r); cout << "███";
+		gotoxy(x, y + 3); setColor(q, r); cout << "█ █";
+		gotoxy(x, y + 4); setColor(q, r); cout << "███";
+		break;
+	case 7:
+		gotoxy(x, y);     setColor(q, r); cout << "███";
+		gotoxy(x, y + 1); setColor(q, r); cout << "  █";
+		gotoxy(x, y + 2); setColor(q, r); cout << "  █";
+		gotoxy(x, y + 3); setColor(q, r); cout << "  █";
+		gotoxy(x, y + 4); setColor(q, r); cout << "  █";
+		break;
+	case 8:
+		gotoxy(x, y);     setColor(q, r); cout << "███";
+		gotoxy(x, y + 1); setColor(q, r); cout << "█ █";
+		gotoxy(x, y + 2); setColor(q, r); cout << "███";
+		gotoxy(x, y + 3); setColor(q, r); cout << "█ █";
+		gotoxy(x, y + 4); setColor(q, r); cout << "███";
+		break;
+	case 9:
+		gotoxy(x, y);     setColor(q, r); cout << "███";
+		gotoxy(x, y + 1); setColor(q, r); cout << "█ █";
+		gotoxy(x, y + 2); setColor(q, r); cout << "███";
+		gotoxy(x, y + 3); setColor(q, r); cout << "  █";
+		gotoxy(x, y + 4); setColor(q, r); cout << "███";
+		break;
+	}
+}
