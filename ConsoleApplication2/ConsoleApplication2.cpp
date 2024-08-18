@@ -1,4 +1,5 @@
 #include <windows.h>
+#include <SFML/Audio.hpp>
 #include <iostream>
 #include <conio.h>
 #include <thread>
@@ -15,6 +16,54 @@
 
 using namespace std;
 // -------------------------------------------------------- COSAS DE LA CONSOLA Y SU VISUALIZACION ------------------------------------------------------------------------
+void reproducirMusica(const std::string& rutaCancion, sf::Music& music) {
+	do {
+		if (!music.openFromFile(rutaCancion)) {
+			return; /*error de carga*/
+		}
+		music.play();
+		while (music.getStatus() == sf::Music::Playing) {
+			/*mantiene la canción en ejecución*/
+		}
+	} while (music.getStatus() == sf::Music::Stopped);
+	/*una vez que termine la canción va a repetir*/
+}
+
+sf::SoundBuffer buffer;
+sf::Sound sound;
+
+sf::SoundBuffer buffer2;
+sf::Sound sound2;
+
+void saltoSound() {
+	if (!buffer.loadFromFile("salto.ogg")) {
+		cerr << "Error al cargar el archivo de sonido" << endl;
+		return;
+	}
+	sound.setBuffer(buffer);
+}
+void seleccionarSound() {
+	if (!buffer.loadFromFile("selec.ogg")) {
+		cerr << "Error al cargar el archivo de sonido" << endl;
+		return;
+	}
+	sound.setBuffer(buffer);
+}
+void golpeSound() {
+	if (!buffer.loadFromFile("golpe.ogg")) {
+		cerr << "Error al cargar el archivo de sonido" << endl;
+		return;
+	}
+	sound.setBuffer(buffer);
+}
+void tuboSound() {
+	if (!buffer2.loadFromFile("tubo.ogg")) {
+		cerr << "Error al cargar el archivo de sonido" << endl;
+		return;
+	}
+	sound2.setBuffer(buffer2);
+}
+
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 void OcultarCursor() {
 	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -54,7 +103,7 @@ void resetColor() {
 void clearRegion(int x1, int y1, int x2, int y2) {
 	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 	COORD coord{};
-
+	setColor(80, 80);
 	// Define el punto de inicio de la región
 	coord.X = x1;
 	coord.Y = y1;
@@ -97,29 +146,7 @@ void SetConsoleRegionColor(int startX, int startY, int widthC, int heightC, int 
 	resetColor();
 }
 //---------------------------------------------------------------------------------------------------------
-void drawCircle(int centerX, int centerY, int radius, int offsetX, int offsetY, int color, int back) {
-	setColor(color, back);
-	double aspectRatio = 0.8; // Ajuste de aspecto para caracteres de consola
-	for (int y = -radius + 1; y <= 0; y++) { // Dibuja solo la mitad superior del círculo
-		for (int x = -radius; x <= radius-1; x++) { // Dibuja horizontalmente del extremo izquierdo al derecho
-			double dx = x * aspectRatio;
-			double dy = y;
-			if (dx * dx + dy * dy <= radius * radius) { // Ecuación de la circunferencia ajustada para una elipse
-				gotoxy(centerX + x + offsetX, centerY + y + offsetY);
-				cout << "█";
-			}
-		}
-	}
-}
-void drawBuilding(int startX, int startY, int widthE, int heightE, int color, int back) {
-	setColor(color, back);
-	for (int y = startY; y > startY - heightE; --y) {
-		for (int x = startX; x < startX + widthE; ++x) {
-			gotoxy(x, y);
-			cout << "█";
-		}
-	}
-}
+
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 void pantallaGameOver() {
 	int posXover = 52 + 24, posYover = 5;
@@ -184,7 +211,6 @@ void puntajeScreen(int posXover, int posYover) {
 	gotoxy(posXover, posYover + 14);
 	setColor(172, 80); cout << " ▀"; setColor(172, 215); cout << "█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█"; setColor(172, 80); cout << "▀";
 }
-
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 void OcultarCursor();
 void gotoxy(int x, int y);
@@ -202,11 +228,8 @@ void imprimirTubo(int posXtub, int posYpos, int tamano, int hueco, int tamano2);
 void gotoxy(int x, int y);
 void setColor(int textColor, int backgroundColor);
 void titulo(int x, int y);
-void backgroundInicio(int radius, int numCircles, int numBuildings);
-//void backgroundGame(int radius, int numCircles, int numBuildings); --- nose :/
-//void play(int a, int radio, int numCirculos, int x, int y);
-void teclas(int b, int radio, int numCirculos, int x, int y);
-void personaje(int c, int radio, int numCirculos, int x, int y);
+void background();
+
 // 1 vs 1
 void showPuntaje(int k, int x, int y);
 int mayorPunto();
@@ -234,14 +257,24 @@ void validacionTubo(char& op, int& pisoMov, int& posicionX, int& posicionY, int&
 void contadorTubos(int positionTubo[][4][2], int position[][width][2], int& contador1, int contador, int& c);
 // void mostrarNum(int k);
 int main() {
+	string rutaCancion = "profeSong.ogg";
+	sf::Music profe;
+	sf::SoundBuffer buffer;
+	//creamos un hilo
+	thread hiloMusica(reproducirMusica, rutaCancion, std::ref(profe));
+	
 	setConsoleFullScreen();
 	SetConsoleOutputCP(CP_UTF8);
 
 	OcultarCursor();
 	presentacion();
 
-	return 0;
+	// cierra la consola
+	HWND hWnd = GetConsoleWindow();
+	PostMessage(hWnd, WM_CLOSE, 0, 0);
 
+	hiloMusica.join();
+	return 0;
 }
 
 void presentacion() {
@@ -268,7 +301,7 @@ void presentacion() {
 		};
 		system("cls");
 		SetConsoleRegionColor(52, 0, 100, 54, 3, 80); // cambia el color del fondo a azul solo de la region (52,0) a (100,54). El 3 y el otro 3 son el color del fondo y texto si es que se pone
-		backgroundInicio(radio,numCirculos, numEdificios);
+		background();
 		titulo(x, y);
 		piso();
 		cuadroMenu();
@@ -312,10 +345,28 @@ void presentacion() {
 			cMovXpaja++;
 		}
 
+		static bool soundLoaded = false;
+		if (!soundLoaded) {
+			seleccionarSound();
+			soundLoaded = true;
+		}
+
 		switch (op) {
-		case 1: mantenerJuego(position); break;
-		case 2: mantener1VS1(position, position2); break;
-		case 3: mantenerBoss(position); break;
+		case 1:
+			seleccionarSound();
+			sound.play();
+			mantenerJuego(position);
+			break;
+		case 2:
+			seleccionarSound();
+			sound.play();
+			mantener1VS1(position, position2);
+			break;
+		case 3:
+			seleccionarSound();
+			sound.play();
+			mantenerBoss(position);
+			break;
 		}
 	} while (op != 4);
 	gotoxy(27, 50);
@@ -332,8 +383,8 @@ void mantenerJuego(int position[][width][2]) {
 	setColor(0, 0);
 	system("cls");
 	SetConsoleRegionColor(52, 0, 100, 54, 3, 80);
-	backgroundInicio(radio, numCirculos, numEdificios);
 	piso();
+	background();
 	do {
 		OcultarCursor();
 		movPiso(pisoMov);
@@ -341,12 +392,12 @@ void mantenerJuego(int position[][width][2]) {
 		newchoosePosition(op);
 		showClearImage(position); // limpia la region del pajaro despues de su movimiento (tiene como variable a position, basicamente como si fuera la sobra de showImage, solo q lo limpia)
 		changePos(position, op);
+		background();
 		aparecerTubos(positionTubo, posicionX, posicionY, contador);
 		if (contador != 0)
 			validacionTubo(op, pisoMov, posicionX, posicionY, contador, contador1, positionTubo, position, c, radio, numCirculos, numEdificios);
 		contadorTubos(positionTubo, position, contador1, contador, c);
 	} while (op != 'q');
-
 }
 
 //falta poner la anim de los pajaros para el 1 vs 1
@@ -361,7 +412,7 @@ void mantener1VS1(int jugador1[][width][2], int jugador2[][width][2]) { // -----
 	setColor(0, 0);
 	system("cls");
 	SetConsoleRegionColor(52, 0, 100, 54, 3, 80);
-	backgroundInicio(radio, numCirculos, numEdificios);
+	background();
 	piso();
 	do {
 		OcultarCursor();
@@ -373,6 +424,7 @@ void mantener1VS1(int jugador1[][width][2], int jugador2[][width][2]) { // -----
 		changePos(jugador1, op);
 		movPiso(pisoMov);
 		changePos2(jugador2, po);
+		background();
 		aparecerTubos(positionTubo, posicionX, posicionY, contador);
 		if (contador != 0) {
 			validacionTubo(op, pisoMov, posicionX, posicionY, contador, contador1, positionTubo, jugador1, c, radio, numCirculos, numEdificios);
@@ -393,7 +445,7 @@ void mantenerBoss(int position[][width][2]) {
 	setColor(0, 0);
 	system("cls");
 	SetConsoleRegionColor(52, 0, 100, 54, 3, 80);
-	backgroundInicio(radio, numCirculos, numEdificios);
+	background();
 	piso();
 	do {
 		if (contSube % 3 == 0) {
@@ -406,6 +458,7 @@ void mantenerBoss(int position[][width][2]) {
 		showClearImage(position);
 		changePos(position, op);
 		movPiso(pisoMov);
+		background();
 		movBoss(contMov, posXboss, posYboss);
 		boat(posXboss, posYboss);
 		canon(posXboss, posYboss);
@@ -501,6 +554,13 @@ void movBoss(int& contMov, int posXboss, int posYboss) {
 
 void contadorTubos(int positionTubo[][4][2], int position[][width][2], int& contador1, int contador, int& c) {
 	if (positionTubo[1][1][0] == position[2][0][0] + 1) {
+		static bool soundLoaded = false;
+		if (!soundLoaded) {
+			tuboSound();
+			soundLoaded = true;
+		}
+		tuboSound();
+		sound2.play();
 		c++;
 		SetConsoleRegionColor(90, 46, 21, 4, 222, 222);
 		showPuntaje(c, 99, 46);
@@ -512,6 +572,16 @@ void pantallaDerrota(char& op, int &pisoMov, int &posicionX, int &posicionY, int
 		pantallaGameOver();
 		puntajeScreen(52 + 35, 12);
 		derrota(c);
+
+		static bool soundLoaded = false;
+
+		if (!soundLoaded) {
+			golpeSound();
+			soundLoaded = true;
+		}
+		golpeSound();
+		sound.play();
+
 		int x = 52 + 42, y = 31;
 
 		//ponen los puntajes (ejemplo)
@@ -551,9 +621,16 @@ void pantallaDerrota(char& op, int &pisoMov, int &posicionX, int &posicionY, int
 		position[2][7][0] = posXpaja + 7; position[2][7][1] = posYpaja + 2;
 		position[2][8][0] = posXpaja + 8; position[2][8][1] = posYpaja + 2;
 
+		if (!soundLoaded) {
+			seleccionarSound();
+			soundLoaded = true;
+		}
+
 		char operador = _getch();
 		switch (operador) {
 		case '1':
+			seleccionarSound();
+			sound.play();
 			op = 'a';
 			pisoMov = 1;
 			posicionX = 88 + 48;
@@ -564,10 +641,14 @@ void pantallaDerrota(char& op, int &pisoMov, int &posicionX, int &posicionY, int
 			setColor(0, 0);
 			system("cls");
 			SetConsoleRegionColor(52, 0, 100, 54, 3, 80);
-			backgroundInicio(radio, numCirculos, numEdificios);
+			background();
 			piso();
 			break; // op random q no sea q
-		case '2': op = 'q'; break;
+		case '2':
+			seleccionarSound();
+			sound.play();
+			op = 'q';
+			break;
 		}
 	} while (op != 'q' && op != 'a');
 }
@@ -599,7 +680,7 @@ int mayorPunto() {
 	return may;
 }
 
-void vidaBoss(int rest, int dmg) {
+void vidaBoss(int rest, int dmg) { // aun no se como utilizarlo
 	int x, y, q, r, k, p, s;
 	p = 0; s = 0;
 	x = 102; y = 45;
@@ -716,7 +797,7 @@ void imprimirDigito(int digito, int x, int y) {
 		gotoxy(x + 1, y + 3); setColor(0, 15); cout << "█▄█"; setColor(0, 222); cout << "▀";
 		break;
 	case 8:
-		gotoxy(x + 1, y); setColor(0, 222); cout <<    "▄▄▄▄";
+		gotoxy(x + 1, y); setColor(0, 222); cout << "▄▄▄▄";
 		gotoxy(x, y + 1); setColor(0, 15); cout << "█▀▄▄▀█";
 		gotoxy(x, y + 2); setColor(0, 15); cout << "█▀▄▄▀█";
 		gotoxy(x, y + 3); setColor(0, 222); cout << "▀"; setColor(0, 15); cout << "█▄▄█"; setColor(0, 222); cout << "▀";
@@ -750,48 +831,25 @@ void validacionTubo(char& op, int& pisoMov, int& posicionX, int& posicionY, int&
 	//Esquinas: position [0-2][0-8][0-1] 
 }
 
-void backgroundInicio(int radius, int numCircles, int numBuildings) {
-
-	for (int k = 0; k < numCircles; k++) { // Número de nubes
-		int offsetX = k * 16; // De 15 en 15 píxeles
-		int offsetY = 1 + rand() % 3; // Varía aleatoriamente la posición altura de las nubes
-		drawCircle(radius, radius, radius, 52 + offsetX, 30 + offsetY, 194, 194); // Ajuste de posición de la nube
-	}
-
-	// Inicializa la semilla para números aleatorios
-	for (int i = 0; i < numBuildings; ++i) {
-		int heightE = rand() % 7 + 1; // Altura aleatoria entre 1 y maxHeight
-		int widthE = 3 + rand() % 3 + 1; // Ancho aleatorio entre 1 y maxWidth
-		int offsetX = i * (4 + 2); // Espacio entre edificios
-
-		drawBuilding(5 + 52 + offsetX, 41, widthE, heightE, 151, 151); // Color gris con fondo negro
-	}
-}
-
-void teclas(int b, int radio, int numCirculos, int x, int y) {
-	do {
-		titulo(x, y);
-		cuadroMenu();
-		gotoxy(27, 12);
-		setColor(6, 14);
-		cout << "Juega (cualquier numero) hasta q pierdas (1): "; setColor(14, 3); gotoxy(72, 12); cout << "█";
-		cin >> b;
-	} while (b != 1);
-	gotoxy(30, 18);
-	system("pause");
-}
-void personaje(int c, int radio, int numCirculos, int x, int y) {
-	do {
-		titulo(x, y);
-		cuadroMenu();
-		personaje2();
-		gotoxy(27, 12);
-		setColor(6, 3);
-		cout << "Juega (cualquier numero) hasta q pierdas (1): ";
-		cin >> c;
-	} while (c != 1);
-	gotoxy(27, 14);
-	system("pause");
+void background() {
+	int posXfondo = 52;
+	int posYfondo = 32;
+	gotoxy(posXfondo + 0, posYfondo + 0); setColor(194, 80); cout << "                                                     ███████████                     ███████████    ";
+	gotoxy(posXfondo + 0, posYfondo + 1); setColor(194, 80); cout << "                     ███████████     ███████████   ███████████████   ███████████   ███████████████  ";
+	gotoxy(posXfondo + 0, posYfondo + 2); setColor(194, 80); cout << "     ███████████   ███████████████ ████████████████████████████████████████████████████████████████ ";
+	gotoxy(posXfondo + 0, posYfondo + 3); setColor(194, 80); cout << "   "; setColor(194, 151); cout << "██████████████████████████████████████    ██████    ████████████████████████████     ████████████";
+	gotoxy(posXfondo + 0, posYfondo + 4); setColor(194, 80); cout << "  "; setColor(194, 151); cout << "███████████████    ████████████████████    ██          ████████     █████████████         ████████";
+	gotoxy(posXfondo + 0, posYfondo + 5); setColor(194, 151); cout << "█████████████████    ██   ███████████████    ██          ████████     █     ███████         ████████";
+	gotoxy(posXfondo + 0, posYfondo + 6); setColor(194, 151); cout << "███████████    ██    ██   ███████████████    ██          ██     █     █     ███████         ████   █";
+	gotoxy(posXfondo + 0, posYfondo + 7); setColor(194, 151); cout << "████    ███    ██    ██     ███████    ██    ██          ██     █     █     ███████         █      █";
+	gotoxy(posXfondo + 0, posYfondo + 8); setColor(194, 151); cout << "██        █          ██     █    ██    ██    ██          ██     █     █     █     █         █      █";
+	gotoxy(posXfondo + 0, posYfondo + 9); setColor(194, 151); cout << "██        █          ██     █    ██    ██    ██          ██     █     █     █     █         █      █";
+	int posXsol = 68;
+	int posYsol = 12;
+	gotoxy(posXsol + 2, posYsol + 0); setColor(229, 80); cout <<   "▄▄▄▄";
+	gotoxy(posXsol + 0, posYsol + 1); setColor(229, 80); cout << "▄██████▄";
+	gotoxy(posXsol + 0, posYsol + 2); setColor(229, 230); cout <<"█      █";
+	gotoxy(posXsol + 0, posYsol + 3); setColor(230, 80); cout << " ▀████▀";
 }
 
 void imprimirTubo(int posXtub, int posYpos, int tamano, int hueco, int tamano2) {
@@ -801,47 +859,43 @@ void imprimirTubo(int posXtub, int posYpos, int tamano, int hueco, int tamano2) 
 	gotoxy(posXtub - 1, posYpos - tamano);
 	setColor(verde2, cieloColor); cout << "█";
 	setColor(verdeBrillo, cieloColor); cout << "██";
-	setColor(verde2, cieloColor); cout << "███████████";
+	setColor(verde2, cieloColor); cout << "███████████   ";
 
 	gotoxy(posXtub - 1, posYpos - tamano + 1);
 	setColor(verde2, cieloColor); cout << "█";
 	setColor(verdeBrillo, cieloColor); cout << "██";
-	setColor(verde2, cieloColor); cout << "███████████";
+	setColor(verde2, cieloColor); cout << "███████████   ";
 
 	gotoxy(posXtub, posYpos - tamano + 2);
-	setColor(verdeSombra, verde); cout << "▀▀▀▀▀▀▀▀▀▀▀▀";
+	setColor(verdeSombra, verde); cout << "▀▀▀▀▀▀▀▀▀▀▀▀"; setColor(80, 80); cout << "███";
 
 	for (int i = 0; i <= tamano - 3; i++) {
 		gotoxy(posXtub, posYpos - i);
 		setColor(verde2, cieloColor); cout << "█";
 		setColor(verdeBrillo, cieloColor); cout << "██";
 		setColor(verde2, cieloColor); cout << "███";
-		setColor(verde, cieloColor); cout << "██████";
+		setColor(verde, cieloColor); cout << "██████   ";
 	}
 	// tubo de arriba
 	gotoxy(posXtub, posYpos - tamano - hueco - 2);
-	setColor(verdeSombra, verde); cout << "▄▄▄▄▄▄▄▄▄▄▄▄";
+	setColor(verdeSombra, verde); cout << "▄▄▄▄▄▄▄▄▄▄▄▄"; setColor(80, 80); cout << "███";
 
 	gotoxy(posXtub - 1, posYpos - tamano - hueco - 1);
 	setColor(verde2, cieloColor); cout << "█";
 	setColor(verdeBrillo, cieloColor); cout << "██";
-	setColor(verde2, cieloColor); cout << "███████████";
+	setColor(verde2, cieloColor); cout << "███████████   ";
 
 	gotoxy(posXtub - 1, posYpos - tamano - hueco);
 	setColor(verde2, cieloColor); cout << "█";
 	setColor(verdeBrillo, cieloColor); cout << "██";
-	setColor(verde2, cieloColor); cout << "███████████";
+	setColor(verde2, cieloColor); cout << "███████████   ";
 
 	for (int i = 3; i <= tamano2; i++) {
 		gotoxy(posXtub, posYpos - tamano - hueco - i);
 		setColor(verde2, cieloColor); cout << "█";
 		setColor(verdeBrillo, cieloColor); cout << "██";
-		setColor(verde2, cieloColor); cout << "█████████";
+		setColor(verde2, cieloColor); cout << "█████████   ";
 	}
-}
-void clearTubo(int posXtub, int posYpos, int tamano, int hueco, int tamano2) {
-	clearRegion(posXtub + 12, posYpos - tamano, posXtub + 15, posYpos);
-	clearRegion(posXtub + 12, posYpos - tamano - hueco - tamano2, posXtub + 15, posYpos - tamano - hueco);
 }
 
 void aparecerTubos(int position[][4][2], int  posicionX, int posicionY, int& contador) {
@@ -877,7 +931,6 @@ void aparecerTubos(int position[][4][2], int  posicionX, int posicionY, int& con
 
 		if (contador > 0) {
 			for (int i = 1; i <= contador; i++) {
-				clearTubo(position[i][0][0], posicionY, posicionY - position[i][2][1], position[i][2][1] - position[i][0][1], position[i][0][1]);
 				imprimirTubo(position[i][0][0], posicionY, posicionY - position[i][2][1], position[i][2][1] - position[i][0][1], position[i][0][1]);
 			}
 			for (int i = 1; i <= contador; i++) {
@@ -969,10 +1022,21 @@ void showImage2(int pos[][width][2], int pos2[][width][2]) {
 }
 
 void showClearImage(int pos[][width][2]) {// --------------------------------------- limpia la region desde el pos inicial en showImage, esquina superior izquierda del pajaro en showImage, hasta la esquina inferior derecha
-	clearRegion(pos[0][0][0], pos[0][0][1], pos[2][0][0] + 10, pos[2][0][1]); // el mas 10 para q selecione hasta la esquina inferior derecha del pajaro desde le punto inicial (esquina superior izquierda)
+	clearRegion(pos[0][0][0], pos[0][0][1], pos[2][0][0] + 9, pos[2][0][1]); // el mas 10 para q selecione hasta la esquina inferior derecha del pajaro desde le punto inicial (esquina superior izquierda)
 }
 
 void changePos(int positions[][width][2], char op) {
+
+	static bool soundLoaded = false;
+	if (!soundLoaded) {
+		saltoSound();
+		soundLoaded = true;
+	}
+	/* del chapt gpt :v:
+	"soundLoaded" asegura que el archivo de sonido se carga solo una vez, cuando se llama por primera vez a changePos.
+	Esto significa que todas las llamadas posteriores simplemente reproducen el sonido desde la memoria, evitando la carga repetitiva
+	del archivo desde el disco. Esto mejora significativamente el rendimiento, especialmente en escenarios donde la función se llama frecuentemente.
+	*/
 	int pos = 1, k = 0;
 	switch (op) {
 	case 'a':
@@ -985,6 +1049,8 @@ void changePos(int positions[][width][2], char op) {
 		break;
 	case 'w':
 		k = -4;
+		saltoSound();
+		sound.play();
 		break;
 	case 'x':
 		k = -2;
@@ -1010,7 +1076,7 @@ void changePos(int positions[][width][2], char op) {
 		if (positions[height - 1][j][1] + k > 41) {
 			k = 1;
 		}
-		if (positions[i][j][pos] + k >= 0 && positions[height - 1][j][1] + k <= 41) {
+		if (positions[i][j][0] + k >= 52 && positions[i][j][0] + k <= 142 && positions[i][j][1] + k >= 0 && positions[height - 1][j][1] + k <= 41) {
 			for (int j = 0; j < width; j++) {
 				positions[i][j][pos] += k;
 			}
@@ -1059,7 +1125,7 @@ void changePos2(int positions[][width][2], char op) { // -----------------------
 		if (positions[height - 1][j][1] + k > 41) {
 			k = 1;
 		}
-		if (positions[i][j][pos] + k >= 0 && positions[height - 1][j][1] + k <= 41) {
+		if (positions[i][j][pos] + k >= 0  && positions[height - 1][j][1] + k <= 41) {
 			for (int j = 0; j < width; j++) {
 				positions[i][j][pos] += k;
 			}
@@ -1157,7 +1223,6 @@ void newchoosePosition2(char& op) { // -----------------------------------------
 	}
 }
 
-// -------------------------------------------------------- setColor(202, 222);
 void cuadroMenu() {
 	int x= 52 + 42, y = 11;
 	cuadroScreen(52 + 38, 10); gotoxy(x, y + 0); cout << "[1]  J U G A R" ;
