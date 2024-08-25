@@ -43,7 +43,14 @@ void saltoSound() {
 	sound.setBuffer(buffer);
 }
 void seleccionarSound() {
-	if (!buffer2.loadFromFile("selec.ogg")) {
+	if (!buffer2.loadFromFile("ingame.ogg")) {
+		cerr << "Error al cargar el archivo de sonido" << endl;
+		return;
+	}
+	sound2.setBuffer(buffer2);
+}
+void menuSound() {
+	if (!buffer2.loadFromFile("menu.ogg")) {
 		cerr << "Error al cargar el archivo de sonido" << endl;
 		return;
 	}
@@ -176,12 +183,12 @@ void cuadroScreen(int posXover, int posYover, int color) {
 }
 void flecha(int &posXflecha, int &posYflecha) {
 	setColor(15, 80);
-	gotoxy(posXflecha, posYflecha + 0); cout << "█▄ ";
-	gotoxy(posXflecha, posYflecha + 1); cout << "███";
-	gotoxy(posXflecha, posYflecha + 2); cout << "█▀ ";
-	gotoxy(posXflecha + 30, posYflecha + 0); cout << " ▄█";
-	gotoxy(posXflecha + 30, posYflecha + 1); cout << "███";
-	gotoxy(posXflecha + 30, posYflecha + 2); cout << " ▀█";
+	gotoxy(posXflecha, posYflecha + 0); setColor(195, 80); cout << "█▄ ";
+	gotoxy(posXflecha, posYflecha + 1); setColor(195, 15); cout << "▀▀▀";
+	gotoxy(posXflecha, posYflecha + 2); setColor(15, 80); cout << "█▀ ";
+	gotoxy(posXflecha + 30, posYflecha + 0); setColor(195, 80); cout << " ▄█";
+	gotoxy(posXflecha + 30, posYflecha + 1); setColor(195, 15); cout << "▀▀▀";
+	gotoxy(posXflecha + 30, posYflecha + 2); setColor(15, 80); cout << " ▀█";
 }
 void puntajeScreen(int posXover, int posYover) {
 	gotoxy(posXover, posYover);
@@ -317,7 +324,7 @@ void presentacion() {
 			if (_kbhit()) {
 				seleccionarMenu(op,selec,xf,yf);
 				// Convertir el carácter leído a entero
-				if (selec == 13) {
+				if (selec == 13 || selec == 32) {
 					animating = false; // Salir del bucle de animación si se presiona una tecla válida
 				}
 			}
@@ -566,7 +573,6 @@ void contadorTubos(int positionTubo[][4][2], int position[][width][2], int& cont
 }
 
 void pantallaDerrota(char& op, int &pisoMov, int &posicionX, int &posicionY, int &contador, int &contador1, int position[3][width][2], int &c) {
-	int color;
 	int operador = 1;
 	do {
 		pantallaGameOver();
@@ -617,6 +623,11 @@ void pantallaDerrota(char& op, int &pisoMov, int &posicionX, int &posicionY, int
 		position[2][8][0] = posXpaja + 8; position[2][8][1] = posYpaja + 2;
 
 		if (!soundLoaded) {
+			menuSound();
+			soundLoaded = true;
+		}
+
+		if (!soundLoaded) {
 			seleccionarSound();
 			soundLoaded = true;
 		}
@@ -638,7 +649,7 @@ void pantallaDerrota(char& op, int &pisoMov, int &posicionX, int &posicionY, int
 			piso();
 			break; // op random q no sea q
 		case 2:
-			seleccionarSound();
+			menuSound();
 			sound2.play();
 			op = 'q';
 			break;
@@ -1241,53 +1252,63 @@ void seleccionarPausa(int& op) {
 		flecha(xf, yf);
 		cuadroScreen(52 + 38, 30, c1); gotoxy(x + 3, y + 0); cout << "REINTENTAR";
 		cuadroScreen(52 + 38, 34, c2); gotoxy(x + 3, y + 4); cout << "M E N U";
-		selec = _getch();
 
+		selec = _getch();
+		if (selec == 224) { // 224 indica que es una tecla especial
+			selec = _getch(); // Captura el código de la tecla especial
+		}
 		static bool soundLoaded = false;
 		if (!soundLoaded) {
 			flechaSound();
 			soundLoaded = true;
 		}
-		if (selec == 's') {
+
+		switch (selec) {
+		case 's': case 80:
 			flechaSound();
 			sound.play();
 			op += 1;
 			SetConsoleRegionColor(xf, yf, 3, 3, 15, 80);
 			SetConsoleRegionColor(xf + 30, yf, 3, 3, 15, 80);
-		}
-		else if (selec == 'w') {
+			break;
+		case 'w': case 72:
 			flechaSound();
 			sound.play();
 			op -= 1;
 			SetConsoleRegionColor(xf, yf, 3, 3, 15, 80);
 			SetConsoleRegionColor(xf + 30, yf, 3, 3, 15, 80);
+			break;
 		}
-	} while (selec != 13);
+	} while (selec != 13 && selec !=32);
 }
 void seleccionarMenu(int& op, char &selec, int &xf, int &yf) {
 	int x = 52 + 42, y = 11;
 	int c1 = 202, c2= 202, c3=202, c4=202;
 
 	selec = _getch();
-
+	if (selec == 224) { // 224 indica que es una tecla especial
+		selec = _getch(); // Captura el código de la tecla especial
+	}
 	static bool soundLoaded = false;
 	if (!soundLoaded) {
 		flechaSound();
 		soundLoaded = true;
 	}
-	if (selec == 's') {
+	switch (selec) {
+	case 's': case 80:
 		flechaSound();
 		sound.play();
 		op += 1;
 		SetConsoleRegionColor(xf, yf, 3, 3, 15, 80);
 		SetConsoleRegionColor(xf + 30, yf, 3, 3, 15, 80);
-	}
-	else if (selec == 'w') {
+		break;
+	case 'w': case 72:
 		flechaSound();
 		sound.play();
 		op -= 1;
 		SetConsoleRegionColor(xf, yf, 3, 3, 15, 80);
 		SetConsoleRegionColor(xf + 30, yf, 3, 3, 15, 80);
+		break;
 	}
 	if (op < 1)
 		op = 4;
