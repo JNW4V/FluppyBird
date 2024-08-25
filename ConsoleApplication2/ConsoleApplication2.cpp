@@ -1083,15 +1083,15 @@ void changePos(int positions[][width][2], char op) {
 void changePos2(int positions[][width][2], char op) { // --------------------------------- jugador 2
 	int pos = 1, k = 0;
 	switch (op) {
-	case '4':
+	case '75':
 		pos = 0;
 		k = -1;
 		break;
-	case '6':
+	case '77':
 		pos = 0;
 		k = 1;
 		break;
-	case '8':
+	case '72':
 		k = -3;
 		break;
 	case 'x':
@@ -1132,10 +1132,10 @@ void changePos2(int positions[][width][2], char op) { // -----------------------
 void caidaSubidaIncremento(char& op) {
 	switch (op) {
 		//Subida
-	case 'w':
+	case 'w': case 72:
 		op = 'x';
 		break;
-	case 'x':
+	case 'x': 
 		op = 'y';
 		break;
 	case 'y':
@@ -1191,7 +1191,7 @@ void newchoosePosition2(char& op) { // -----------------------------------------
 		if (_kbhit()) {
 			op = _getch();
 			setColor(80, 80);
-			if (op == '4' || op == '6' || op == '8' || op == 'q') {
+			if (op == 72 || op == 75 || op == 77 ||	 op == 'q') {
 				return;
 			}
 		}
@@ -1199,7 +1199,7 @@ void newchoosePosition2(char& op) { // -----------------------------------------
 		auto now = std::chrono::high_resolution_clock::now();
 		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();
 		if (duration >= timeout_ms) {
-			if (op == 'w' || op == 'x' || op == 'y') {
+			if (op == 72 || op == 'x' || op == 'y') {
 				caidaSubidaIncremento(op);
 			}
 			else if (op == 'f' || op == 'g' || op == 'h') {
