@@ -43,11 +43,11 @@ void saltoSound() {
 	sound.setBuffer(buffer);
 }
 void seleccionarSound() {
-	if (!buffer.loadFromFile("selec.ogg")) {
+	if (!buffer2.loadFromFile("selec.ogg")) {
 		cerr << "Error al cargar el archivo de sonido" << endl;
 		return;
 	}
-	sound.setBuffer(buffer);
+	sound2.setBuffer(buffer2);
 }
 void golpeSound() {
 	if (!buffer.loadFromFile("golpe.ogg")) {
@@ -63,7 +63,13 @@ void tuboSound() {
 	}
 	sound2.setBuffer(buffer2);
 }
-
+void flechaSound() {
+	if (!buffer.loadFromFile("flecha.ogg")) {
+		cerr << "Error al cargar el archivo de sonido" << endl;
+		return;
+	}
+	sound.setBuffer(buffer);
+}
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 void OcultarCursor() {
 	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -159,8 +165,8 @@ void pantallaGameOver() {
 	gotoxy(posXover, posYover + 3);
 	setColor(23, 15); cout << "█▄▄▄▄▄█▄▄█▄▄█▄▄▄█▄▄▄█▄▄▄▄▄█"; gotoxy(posXover + 28, posYover + 3); cout << "█▄▄▄▄█"; gotoxy(posXover + 35, posYover + 3); cout << "█▄█"; gotoxy(posXover + 39, posYover + 3); cout << "█▄▄▄▄▄█▄▄█▄▄█";
 }
-void cuadroScreen(int posXover, int posYover) {
-	setColor(15, 202);
+void cuadroScreen(int posXover, int posYover, int color) {
+	setColor(15, color);
 	gotoxy(posXover, posYover);
 	cout << "█▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█";
 	gotoxy(posXover, posYover + 1);
@@ -168,15 +174,14 @@ void cuadroScreen(int posXover, int posYover) {
 	gotoxy(posXover, posYover + 2);
 	cout << "█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█";
 }
-void puntaje(int posXptj, int posYptj) {
-	gotoxy(posXptj, posYptj);
-	setColor(0, 222); cout << " ▄▄▄";
-	gotoxy(posXptj, posYptj + 1);
-	setColor(0, 15); cout << "█▀ █";
-	gotoxy(posXptj, posYptj + 2);
-	setColor(0, 15); cout << "██ █"; setColor(0, 222); cout << "▄";
-	gotoxy(posXptj, posYptj + 3);
-	setColor(0, 15); cout << "█▄▄▄█";
+void flecha(int &posXflecha, int &posYflecha) {
+	setColor(15, 80);
+	gotoxy(posXflecha, posYflecha + 0); cout << "█▄ ";
+	gotoxy(posXflecha, posYflecha + 1); cout << "███";
+	gotoxy(posXflecha, posYflecha + 2); cout << "█▀ ";
+	gotoxy(posXflecha + 30, posYflecha + 0); cout << " ▄█";
+	gotoxy(posXflecha + 30, posYflecha + 1); cout << "███";
+	gotoxy(posXflecha + 30, posYflecha + 2); cout << " ▀█";
 }
 void puntajeScreen(int posXover, int posYover) {
 	gotoxy(posXover, posYover);
@@ -220,7 +225,6 @@ void changePos(int position[][width][2], char op);
 void mantenerJuego(int position[][width][2]);
 void newchoosePosition(char& op);
 void caidaSubidaIncremento(char& op);
-void cuadroMenu();
 void piso();
 void presentacion();
 void personaje2();
@@ -229,7 +233,8 @@ void gotoxy(int x, int y);
 void setColor(int textColor, int backgroundColor);
 void titulo(int x, int y);
 void background();
-
+void seleccionarMenu(int& op, char &selec, int &xf, int &yf);
+void seleccionarPausa(int& operador);
 // 1 vs 1
 void showPuntaje(int k, int x, int y);
 int mayorPunto();
@@ -252,8 +257,8 @@ void movPiso(int& pisoMov);
 void subeBaja(int& contador, int& posYboss);
 
 void aparecerTubos(int position[][4][2], int  posicionX, int posicionY, int& contador);
-void pantallaDerrota(char& op, int& pisoMov, int& posicionX, int& posicionY, int& contador, int& contador1, int position[3][width][2], int &c, int radio, int numCirculos, int numEdificios);
-void validacionTubo(char& op, int& pisoMov, int& posicionX, int& posicionY, int& contador, int& contador1, int positionTubo[][4][2], int position[3][width][2], int &c, int radio, int numCirculos, int numEdificios);
+void pantallaDerrota(char& op, int& pisoMov, int& posicionX, int& posicionY, int& contador, int& contador1, int position[3][width][2], int &c);
+void validacionTubo(char& op, int& pisoMov, int& posicionX, int& posicionY, int& contador, int& contador1, int positionTubo[][4][2], int position[3][width][2], int &c);
 void contadorTubos(int positionTubo[][4][2], int position[][width][2], int& contador1, int contador, int& c);
 // void mostrarNum(int k);
 int main() {
@@ -278,11 +283,9 @@ int main() {
 }
 
 void presentacion() {
-	const int radio = 10;
-	const int numCirculos = 6;
-	const int numEdificios = 15;
-	int op, a = 0, b = 0, c = 0;
-	int x = 60, y = 2;
+	int op = 1;
+	char selec;
+	int x = 60, y = 2, xf = 52 + 33, yf = 10;
 	int pajMov = 1, pisoMov = 0;
 	int Xpaja = 44 + 52, Ypaja = 26, cMovXpaja = 1, verificarYpaja = 26;
 	do {
@@ -304,14 +307,17 @@ void presentacion() {
 		background();
 		titulo(x, y);
 		piso();
-		cuadroMenu();
 		// animacion del menu del pajaro
 		bool animating = true;
 		setColor(80, 80);
+		// para q capte una tecla (cualquiera) presionada solamente, sino el kbith nunca mostrara el menu :v
+		keybd_event('A', 0, 0, 0); // Presiona la tecla 'A'
+		keybd_event('A', 0, KEYEVENTF_KEYUP, 0); // Suelta la tecla 'A'
 		while (animating) {
 			if (_kbhit()) {
-				op = _getch() - '0'; // Convertir el carácter leído a entero
-				if (op >= 1 && op <= 4) {
+				seleccionarMenu(op,selec,xf,yf);
+				// Convertir el carácter leído a entero
+				if (selec == 13) {
 					animating = false; // Salir del bucle de animación si se presiona una tecla válida
 				}
 			}
@@ -354,30 +360,28 @@ void presentacion() {
 		switch (op) {
 		case 1:
 			seleccionarSound();
-			sound.play();
+			sound2.play();
 			mantenerJuego(position);
 			break;
 		case 2:
 			seleccionarSound();
-			sound.play();
+			sound2.play();
 			mantener1VS1(position, position2);
 			break;
 		case 3:
 			seleccionarSound();
-			sound.play();
+			sound2.play();
 			mantenerBoss(position);
 			break;
 		}
 	} while (op != 4);
+
 	gotoxy(27, 50);
 }
 
 void mantenerJuego(int position[][width][2]) {
 	char op=0;
 	int pisoMov = 1;
-	const int radio = 10;
-	const int numCirculos = 6;
-	const int numEdificios = 15;
 	int posicionX = 88 + 48, posicionY = 41, contador = 0, contador1 = 0;
 	int positionTubo[10][4][2], c = 0;
 	setColor(0, 0);
@@ -395,7 +399,7 @@ void mantenerJuego(int position[][width][2]) {
 		background();
 		aparecerTubos(positionTubo, posicionX, posicionY, contador);
 		if (contador != 0)
-			validacionTubo(op, pisoMov, posicionX, posicionY, contador, contador1, positionTubo, position, c, radio, numCirculos, numEdificios);
+			validacionTubo(op, pisoMov, posicionX, posicionY, contador, contador1, positionTubo, position, c);
 		contadorTubos(positionTubo, position, contador1, contador, c);
 	} while (op != 'q');
 }
@@ -404,9 +408,6 @@ void mantenerJuego(int position[][width][2]) {
 void mantener1VS1(int jugador1[][width][2], int jugador2[][width][2]) { // -------------------------------- 1 vs 1
 	char op, po;
 	int pisoMov = 0;
-	const int radio = 10;
-	const int numCirculos = 6;
-	const int numEdificios = 15;
 	int posicionX = 88 + 48, posicionY = 41, contador = 0, contador1 = 0;
 	int positionTubo[10][4][2], c = 0;
 	setColor(0, 0);
@@ -427,8 +428,8 @@ void mantener1VS1(int jugador1[][width][2], int jugador2[][width][2]) { // -----
 		background();
 		aparecerTubos(positionTubo, posicionX, posicionY, contador);
 		if (contador != 0) {
-			validacionTubo(op, pisoMov, posicionX, posicionY, contador, contador1, positionTubo, jugador1, c, radio, numCirculos, numEdificios);
-			validacionTubo(op, pisoMov, posicionX, posicionY, contador, contador1, positionTubo, jugador2, c, radio, numCirculos, numEdificios);
+			validacionTubo(op, pisoMov, posicionX, posicionY, contador, contador1, positionTubo, jugador1, c);
+			validacionTubo(op, pisoMov, posicionX, posicionY, contador, contador1, positionTubo, jugador2, c);
 		}
 	} while (op != 'q');
 }
@@ -436,9 +437,6 @@ void mantener1VS1(int jugador1[][width][2], int jugador2[][width][2]) { // -----
 void mantenerBoss(int position[][width][2]) {
 	char op = 0;
 	int pisoMov = 0;;
-	const int radio = 10;
-	const int numCirculos = 6;
-	const int numEdificios = 15;
 	int posXboss = 52 + 70, posYboss = 12;
 	int contMov = 0, contSube = 0, contBala = 0;
 	int positionBala[100][2]; positionBala[0][0] = posXboss;
@@ -567,7 +565,9 @@ void contadorTubos(int positionTubo[][4][2], int position[][width][2], int& cont
 	}
 }
 
-void pantallaDerrota(char& op, int &pisoMov, int &posicionX, int &posicionY, int &contador, int &contador1, int position[3][width][2], int &c, int radio, int numCirculos, int numEdificios) {
+void pantallaDerrota(char& op, int &pisoMov, int &posicionX, int &posicionY, int &contador, int &contador1, int position[3][width][2], int &c) {
+	int color;
+	int operador = 1;
 	do {
 		pantallaGameOver();
 		puntajeScreen(52 + 35, 12);
@@ -582,12 +582,7 @@ void pantallaDerrota(char& op, int &pisoMov, int &posicionX, int &posicionY, int
 		golpeSound();
 		sound.play();
 
-		int x = 52 + 42, y = 31;
-
-		//ponen los puntajes (ejemplo)
-
-		cuadroScreen(52 + 38, 30); gotoxy(x, y + 0); cout << "[1]  REINTENTAR";
-		cuadroScreen(52 + 38, 34); gotoxy(x, y + 4); cout << "[2]  M E N U" << endl;
+		seleccionarPausa(operador);
 
 		// uno por uno q pereza :v
 		int posXpaja = 25 + 52, posYpaja = 15;
@@ -625,12 +620,10 @@ void pantallaDerrota(char& op, int &pisoMov, int &posicionX, int &posicionY, int
 			seleccionarSound();
 			soundLoaded = true;
 		}
-
-		char operador = _getch();
 		switch (operador) {
-		case '1':
+		case 1:
 			seleccionarSound();
-			sound.play();
+			sound2.play();
 			op = 'a';
 			pisoMov = 1;
 			posicionX = 88 + 48;
@@ -644,9 +637,9 @@ void pantallaDerrota(char& op, int &pisoMov, int &posicionX, int &posicionY, int
 			background();
 			piso();
 			break; // op random q no sea q
-		case '2':
+		case 2:
 			seleccionarSound();
-			sound.play();
+			sound2.play();
 			op = 'q';
 			break;
 		}
@@ -820,12 +813,12 @@ void limpiarPantalla(int x1, int y1, int x2, int y2) {
 	}
 }
 
-void validacionTubo(char& op, int& pisoMov, int& posicionX, int& posicionY, int& contador, int& contador1, int positionTubo[][4][2], int position[3][width][2], int &c, int radio, int numCirculos, int numEdificios) {
+void validacionTubo(char& op, int& pisoMov, int& posicionX, int& posicionY, int& contador, int& contador1, int positionTubo[][4][2], int position[3][width][2], int &c) {
 	for (int i = 1; i <= contador; i++) {
 		if ((positionTubo[i][0][0] <= position[0][8][0] && positionTubo[i][1][0] >= position[0][0][0]) || (positionTubo[i][0][0] <= position[2][0][0] && positionTubo[i][1][0] >= position[2][0][0])) {
 			if (position[0][0][1] > positionTubo[i][0][1] && position[2][0][1] < positionTubo[i][2][1]) {}
 			else
-				pantallaDerrota(op, pisoMov, posicionX, posicionY, contador, contador1, position, c, radio, numCirculos, numEdificios);
+				pantallaDerrota(op, pisoMov, posicionX, posicionY, contador, contador1, position, c);
 		}
 	}
 	//Esquinas: position [0-2][0-8][0-1] 
@@ -1196,7 +1189,6 @@ void newchoosePosition2(char& op) { // -----------------------------------------
 	int timeout_ms = 10;
 	while (true) {
 		if (_kbhit()) {
-
 			op = _getch();
 			setColor(80, 80);
 			if (op == '4' || op == '6' || op == '8' || op == 'q') {
@@ -1223,12 +1215,114 @@ void newchoosePosition2(char& op) { // -----------------------------------------
 	}
 }
 
-void cuadroMenu() {
-	int x= 52 + 42, y = 11;
-	cuadroScreen(52 + 38, 10); gotoxy(x, y + 0); cout << "[1]  J U G A R" ;
-	cuadroScreen(52 + 38, 14); gotoxy(x, y + 4); cout << "[2]  1  V S  1" << endl;
-	cuadroScreen(52 + 38, 18); gotoxy(x - 1, y + 8); cout << "[3]  V S  J E F E" << endl;
-	cuadroScreen(52 + 38, 22); gotoxy(x, y + 12); cout << "[4]  S A L I R" << endl;
+void seleccionarPausa(int& op) {
+	char selec;
+	int x = 52 + 42, y = 31, xf = 52 + 33, yf = 30;
+	int c1, c2;
+	do {
+		if (op < 1)
+			op = 2;
+		else if (op > 2)
+			op = 1;
+
+		if (op == 1) {
+			c1 = 208;
+			yf = 30;
+		}
+		else
+			c1 = 202;
+		if (op == 2) {
+			c2 = 208;
+			yf = 34;
+		}
+		else
+			c2 = 202;
+
+		flecha(xf, yf);
+		cuadroScreen(52 + 38, 30, c1); gotoxy(x + 3, y + 0); cout << "REINTENTAR";
+		cuadroScreen(52 + 38, 34, c2); gotoxy(x + 3, y + 4); cout << "M E N U";
+		selec = _getch();
+
+		static bool soundLoaded = false;
+		if (!soundLoaded) {
+			flechaSound();
+			soundLoaded = true;
+		}
+		if (selec == 's') {
+			flechaSound();
+			sound.play();
+			op += 1;
+			SetConsoleRegionColor(xf, yf, 3, 3, 15, 80);
+			SetConsoleRegionColor(xf + 30, yf, 3, 3, 15, 80);
+		}
+		else if (selec == 'w') {
+			flechaSound();
+			sound.play();
+			op -= 1;
+			SetConsoleRegionColor(xf, yf, 3, 3, 15, 80);
+			SetConsoleRegionColor(xf + 30, yf, 3, 3, 15, 80);
+		}
+	} while (selec != 13);
+}
+void seleccionarMenu(int& op, char &selec, int &xf, int &yf) {
+	int x = 52 + 42, y = 11;
+	int c1 = 202, c2= 202, c3=202, c4=202;
+
+	selec = _getch();
+
+	static bool soundLoaded = false;
+	if (!soundLoaded) {
+		flechaSound();
+		soundLoaded = true;
+	}
+	if (selec == 's') {
+		flechaSound();
+		sound.play();
+		op += 1;
+		SetConsoleRegionColor(xf, yf, 3, 3, 15, 80);
+		SetConsoleRegionColor(xf + 30, yf, 3, 3, 15, 80);
+	}
+	else if (selec == 'w') {
+		flechaSound();
+		sound.play();
+		op -= 1;
+		SetConsoleRegionColor(xf, yf, 3, 3, 15, 80);
+		SetConsoleRegionColor(xf + 30, yf, 3, 3, 15, 80);
+	}
+	if (op < 1)
+		op = 4;
+	else if (op > 4)
+		op = 1;
+
+	if (op == 1) {
+		c1 = 208;
+		yf = 10;
+	}
+	else
+		c1 = 202;
+	if (op == 2) {
+		c2 = 208;
+		yf = 14;
+	}
+	else
+		c2 = 202;
+	if (op == 3) {
+		c3 = 208;
+		yf = 18;
+	}
+	else
+		c3 = 202;
+	if (op == 4) {
+		c4 = 208;
+		yf = 22;
+	}
+	else
+		c4 = 202;
+	flecha(xf, yf);
+	cuadroScreen(52 + 38, 10, c1); gotoxy(x + 3, y + 0); cout << "J U G A R";
+	cuadroScreen(52 + 38, 14, c2); gotoxy(x + 3, y + 4); cout << "1  V S  1";
+	cuadroScreen(52 + 38, 18, c3); gotoxy(x + 2, y + 8); cout << "V S  J E F E";
+	cuadroScreen(52 + 38, 22, c4); gotoxy(x + 3, y + 12); cout << "S A L I R";
 }
 void movPiso(int &pisoMov) {
 	if (pisoMov == 1) {
@@ -1282,24 +1376,12 @@ void movPiso(int &pisoMov) {
 void piso() {
 	for (int i = 0; i < 12; ++i) {
 		gotoxy(52, 42 + i);
-		if (i == 0)
-			setColor(148, 80);
-		else if (i == 1)
+		if (i == 1)
 			setColor(208, 215);
 		else
 			setColor(222, 80);
 		for (int j = 0; j < 100; ++j) {
-			if (i == 0) {
-				if (j % 4 == 0 || j % 4 == 3) {
-					setColor(154, 80);
-					cout << "█";
-				}
-				else {
-					setColor(112, 80);
-					cout << "█";
-				}
-			}
-			else if (i == 1)
+			if (i == 1)
 				cout << "▀";
 			else
 				cout << "█";
