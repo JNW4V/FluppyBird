@@ -1,0 +1,49 @@
+bool validacionTubo1vs1(char& op, int& pisoMov, int& posicionX, int& posicionY, int& contador, int& contador1, int positionTubo[][4][2], int position[3][width][2], int& c);
+
+bool validacionTubo1vs1(char& op, int& pisoMov, int& posicionX, int& posicionY, int& contador, int& contador1, int positionTubo[][4][2], int position[3][width][2], int& c) {
+	for (int i = 1; i <= contador; i++) {
+		if ((positionTubo[i][0][0] <= position[0][8][0] && positionTubo[i][1][0] >= position[0][0][0]) || (positionTubo[i][0][0] <= position[2][0][0] && positionTubo[i][1][0] >= position[2][0][0])) {
+			if (position[0][0][1] > positionTubo[i][0][1] && position[2][0][1] < positionTubo[i][2][1]) {
+				return 1;
+			}
+			else
+				return 0;
+		}
+	}
+}
+void mantener1VS1(int jugador1[][width][2], int jugador2[][width][2]) { 
+	char op, po;
+	int derrota1, derrota2;
+	int pisoMov = 0;
+	int posicionX = 88 + 48, posicionY = 41, contador = 0, contador1 = 0;
+	int positionTubo[10][4][2], c = 0;
+	setColor(0, 0);
+	system("cls");
+	SetConsoleRegionColor(52, 0, 100, 54, 3, 80);
+	background();
+	piso();
+	do {
+		OcultarCursor();
+		showImage2(jugador1, jugador2);
+		newchoosePosition2(op,po);
+		showClearImage(jugador1);
+		showClearImage(jugador2);
+		changePos(jugador1, op);
+		movPiso(pisoMov);
+		changePos2(jugador2, po);
+		background();
+		aparecerTubos(positionTubo, posicionX, posicionY, contador);
+		if (contador != 0) {
+			derrota1 = validacionTubo1vs1(op, pisoMov, posicionX, posicionY, contador, contador1, positionTubo, jugador1, c);
+			derrota2 = validacionTubo1vs1(po, pisoMov, posicionX, posicionY, contador, contador1, positionTubo, jugador2, c);
+			if (derrota1 == 0){
+				pantallaDerrota(op, pisoMov, posicionX, posicionY, contador, contador1, jugador1, c);
+				break;
+			}
+			else if(derrota2 == 0){
+				pantallaDerrota(po, pisoMov, posicionX, posicionY, contador, contador1, jugador2, c);
+				break;
+			}
+		}
+	} while (po != 'q' || op != 'q');
+}
