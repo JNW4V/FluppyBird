@@ -1,0 +1,126 @@
+void newchoosePosition2(char& op, char& po);
+
+
+void mantener1VS1(int jugador1[][width][2], int jugador2[][width][2]) { // -------------------------------- 1 vs 1
+	char op, po;
+	int pisoMov = 0;
+	int posicionX = 88 + 48, posicionY = 41, contador = 0, contador1 = 0;
+	int positionTubo[10][4][2], c = 0;
+	setColor(0, 0);
+	system("cls");
+	SetConsoleRegionColor(52, 0, 100, 54, 3, 80);
+	background();
+	piso();
+	do {
+		OcultarCursor();
+		showImage2(jugador1, jugador2);
+		newchoosePosition2(op,po);
+		showClearImage(jugador1);
+		showClearImage(jugador2);
+		changePos(jugador1, op);
+		movPiso(pisoMov);
+		changePos2(jugador2, po);
+		background();
+		aparecerTubos(positionTubo, posicionX, posicionY, contador);
+		if (contador != 0) {
+			validacionTubo(op, pisoMov, posicionX, posicionY, contador, contador1, positionTubo, jugador1, c);
+			validacionTubo(po, pisoMov, posicionX, posicionY, contador, contador1, positionTubo, jugador2, c);
+		}
+	} while (op != 'q');
+}
+
+void newchoosePosition2(char& op, char& po) { // ----------------------------------------- jugador 2
+	auto start = std::chrono::high_resolution_clock::now();
+	int timeout_ms = 100;
+	char tecla;
+	while (true) {
+		if (_kbhit()) {
+			tecla = _getch();
+			setColor(80, 80);
+
+			if (tecla == 'w' || tecla== 'a' || tecla== 'd'){
+				op = tecla;
+				caidaSubidaIncremento(po);
+				return;
+			}
+
+
+			else if (tecla == 72 || tecla == 75 || tecla == 77 ||	tecla == 'q' ) {
+				po = tecla;
+				caidaSubidaIncremento(op);
+				return;
+			}
+		}
+		setColor(80, 80);
+		auto now = std::chrono::high_resolution_clock::now();
+		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();
+		if (duration >= timeout_ms) {
+			if (po == 72 || po == 'x' || po == 'y' || po == 'f' || po == 'g' || po == 'h') {
+				caidaSubidaIncremento(po);
+			}
+			else {
+				po = 'f';
+			}
+			if (op == 'w' || op == 'x' || op == 'y' || op == 'f' || op == 'g' || op == 'h') {
+				caidaSubidaIncremento(op);
+			}
+			else {
+				op = 'f';
+			}
+
+			return;
+		}
+		this_thread::sleep_for(std::chrono::milliseconds(10));
+	}
+}
+
+
+void changePos2(int positions[][width][2], char op) { // --------------------------------- jugador 2
+	int pos = 1, k = 0;
+	switch (op) {
+	case 75:
+		pos = 0;
+		k = -1;
+		break;
+	case 77:
+		pos = 0;
+		k = 1;
+		break;
+	case 72:
+		k = -3;
+		break;
+	case 'x':
+		k = -2;
+		break;
+	case 'y':
+		k = -1;
+		break;
+
+	case 'f':
+		k = 0;
+		break;
+
+	case 'g':
+		k = 1;
+		break;
+	case 'h':
+		k = 2;
+		break;
+
+	}
+	int j = 0;
+	for (int i = 0; i < height; i++) {
+		if (positions[height - 1][j][1] + k > 41) {
+			k = 1;
+		}
+		if (positions[i][j][pos] + k >= 0  && positions[height - 1][j][1] + k <= 41) {
+			for (int j = 0; j < width; j++) {
+				positions[i][j][pos] += k;
+			}
+		}
+		else {
+			break;
+		}
+
+	}
+}
