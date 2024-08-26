@@ -413,8 +413,9 @@ void mantenerJuego(int position[][width][2]) {
 }
 
 //falta poner la anim de los pajaros para el 1 vs 1
-void mantener1VS1(int jugador1[][width][2], int jugador2[][width][2]) {
+void mantener1VS1(int jugador1[][width][2], int jugador2[][width][2]) { // -------------------------------- 1 vs 1
 	char op, po;
+	bool x = true;
 	int derrota1, derrota2;
 	int pisoMov = 0;
 	int posicionX = 88 + 48, posicionY = 41, contador = 0, contador1 = 0;
@@ -438,16 +439,19 @@ void mantener1VS1(int jugador1[][width][2], int jugador2[][width][2]) {
 		if (contador != 0) {
 			derrota1 = validacionTubo1vs1(op, pisoMov, posicionX, posicionY, contador, contador1, positionTubo, jugador1, c);
 			derrota2 = validacionTubo1vs1(po, pisoMov, posicionX, posicionY, contador, contador1, positionTubo, jugador2, c);
-			if (derrota1 == 0) {
-				pantallaDerrota(op, pisoMov, posicionX, posicionY, contador, contador1, jugador1, c);
-				break;
-			}
-			else if (derrota2 == 0) {
-				pantallaDerrota(po, pisoMov, posicionX, posicionY, contador, contador1, jugador2, c);
-				break;
+			if (derrota1 == 0 || derrota2 == 0) {
+				if (derrota1 == 0) {
+					pantallaDerrota(op, pisoMov, posicionX, posicionY, contador, contador1, jugador1, c);
+
+				}
+				else {
+					pantallaDerrota(po, pisoMov, posicionX, posicionY, contador, contador1, jugador2, c);
+
+				}
 			}
 		}
-	} while (po != 'q' || op != 'q');
+		contadorTubos(positionTubo, jugador1, contador1, contador, c, x);
+	} while (po != 'q' && op != 'q');
 }
 
 
@@ -698,6 +702,7 @@ void pantallaDerrotaBoss(char& op, int& pisoMov, int position[3][width][2],int& 
 		}
 	} while (op != 'q' && op != 'a');
 }
+
 void pantallaDerrota(char& op, int &pisoMov, int &posicionX, int &posicionY, int &contador, int &contador1, int position[3][width][2], int &c) {
 	int operador = 1;
 	do {
