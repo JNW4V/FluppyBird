@@ -261,8 +261,8 @@ void movBoss(int& contMov, int posXboss, int posYboss);
 void showImageMenu(int &pajMov, int Xpaja, int Ypaja);
 void movPiso(int& pisoMov);
 void subeBaja(int& contador, int& posYboss);
-void pantallaDerrotaBoss(char& op, int& pisoMov, int position[3][width][2]);
-void validacionBalas(int positionBala[][2], int position[][width][2], int contador, char& op, int &movPiso);
+void pantallaDerrotaBoss(char& op, int& pisoMov, int position[3][width][2], int& posXboss, int& posYboss, int& contMov, int& contSube, int& contBala, int positionBala[][2]);
+void validacionBalas(int positionBala[][2], int position[][width][2], int contador, char& op, int& pisoMov, int& posXboss, int& posYboss, int& contMov, int& contSube, int& contBala);
 void posicionBala(int contSube, int positionBala[][2], int& contBala, int posYboss, int posXboss);
 bool validacionTubo1vs1(char& op, int& pisoMov, int& posicionX, int& posicionY, int& contador, int& contador1, int positionTubo[][4][2], int position[3][width][2], int& c);
 
@@ -453,7 +453,7 @@ void mantener1VS1(int jugador1[][width][2], int jugador2[][width][2]) {
 
 void mantenerBoss(int position[][width][2]) {
 	char op = 0;
-	int pisoMov = 0;;
+	int pisoMov = 0;
 	int posXboss = 52 + 70, posYboss = 12;
 	int contMov = 0, contSube = 0, contBala = 0;
 	int positionBala[100][2]; positionBala[0][0] = posXboss;
@@ -465,7 +465,8 @@ void mantenerBoss(int position[][width][2]) {
 	piso();
 	do {
 		if (contSube % 3 == 0) {
-			positionBala[contBala][0] = posXboss - 7; positionBala[contBala][1] = posYboss + 13;
+			positionBala[contBala][0] = posXboss - 7;
+			positionBala[contBala][1] = posYboss + 13;
 			contBala++;
 		}
 		showImage(position, op);
@@ -480,7 +481,7 @@ void mantenerBoss(int position[][width][2]) {
 		if (contSube != 31)
 			subeBaja(contSube, posYboss);
 		balas(positionBala, contBala);
-		validacionBalas(positionBala, position, contBala, op,pisoMov);
+		validacionBalas(positionBala, position, contBala, op,pisoMov, posXboss, posYboss, contMov, contSube, contBala);
 	} while (op != 'q');
 
 }
@@ -521,7 +522,7 @@ void canon(int posXboss, int posYboss) {
 	gotoxy(posXboss, posYboss + 3); setColor(0, 234); cout << "█ ▄█▄   █";
 	gotoxy(posXboss, posYboss + 4); setColor(0, 80); cout << "██  ███▀";
 }
-void posicionBala(int contSube, int positionBala[][2], int& contBala, int posYboss, int posXboss) {
+void posicionBala(int contSube, int positionBala[][2], int& contBala, int posYboss, int posXboss) { // es necesario?
 	if (contSube % 3 == 0) {
 		positionBala[contBala][0] = posXboss - 7; positionBala[contBala][1] = posYboss + 13;
 		contBala++;
@@ -530,28 +531,28 @@ void posicionBala(int contSube, int positionBala[][2], int& contBala, int posYbo
 void balas(int positionBala[][2], int contBala) {
 	for (int i = 0; i < contBala; i++) {
 		clearRegion(positionBala[i][0], positionBala[i][1], positionBala[i][0] + 7, positionBala[i][1] + 2);
-		gotoxy(positionBala[i][0], positionBala[i][1]); setColor(124, 80); cout << "▄███▄";
-		gotoxy(positionBala[i][0], positionBala[i][1] + 1); setColor(88, 80); cout << "█████";
-		gotoxy(positionBala[i][0], positionBala[i][1] + 2); setColor(52, 80); cout << "▀███▀";
+		gotoxy(positionBala[i][0], positionBala[i][1]); setColor(124, 80); cout << "▄███▄     ";
+		gotoxy(positionBala[i][0], positionBala[i][1] + 1); setColor(88, 80); cout << "█████     ";
+		gotoxy(positionBala[i][0], positionBala[i][1] + 2); setColor(52, 80); cout << "▀███▀     ";
 	}
 	for (int i = 0; i < contBala; i++) {
-		positionBala[i][0] -= 3;
+		positionBala[i][0] -= 5;
 	}
-	if (positionBala[0][0] <= 40) {
-		clearRegion(positionBala[0][0], positionBala[0][1], positionBala[0][0] + 5, positionBala[0][1] + 3);
+	if (positionBala[0][0] <= 50) {
 		for (int i = 0; i < contBala; i++) {
 			positionBala[i][0] = positionBala[i + 1][0];
 			positionBala[i][1] = positionBala[i + 1][1];
 		}
+		clearRegion(52, 10, 52 + 15, 30);
 		contBala--;
 	}
 }
 
-void validacionBalas(int positionBala[][2], int position[][width][2], int contador, char& op, int& pisoMov) {
+void validacionBalas(int positionBala[][2], int position[][width][2], int contador, char& op, int& pisoMov, int& posXboss, int& posYboss, int& contMov, int& contSube, int& contBala) {
 	for (int i = 1; i <= contador; i++) {
 		if ((positionBala[i][0] <= position[0][8][0] && positionBala[i][0] >= position[0][0][0]) || (positionBala[i][0] + 5 <= position[2][0][0] && positionBala[i][0] + 5 >= position[2][0][0])) {
 			if ((position[0][0][1] <= positionBala[i][1] && position[2][0][1] >= positionBala[i][1]) || (position[0][0][1] <= positionBala[i][1] + 3 && position[2][0][1] >= positionBala[i][1] + 3)) {
-				pantallaDerrotaBoss(op, pisoMov, position);
+				pantallaDerrotaBoss(op, pisoMov, position, posXboss, posYboss, contMov, contSube, contBala, positionBala);
 			}
 		}
 	}
@@ -611,7 +612,7 @@ void contadorTubos(int positionTubo[][4][2], int position[][width][2], int& cont
 		showPuntaje(c, 99, 46);
 	}
 }
-void pantallaDerrotaBoss(char& op, int& pisoMov, int position[3][width][2]) {
+void pantallaDerrotaBoss(char& op, int& pisoMov, int position[3][width][2],int& posXboss,int& posYboss,int& contMov,int& contSube,int& contBala, int positionBala[][2]) {
 	int operador = 1;
 	do {
 		pantallaGameOver(); // "game over"
@@ -673,6 +674,15 @@ void pantallaDerrotaBoss(char& op, int& pisoMov, int position[3][width][2]) {
 			seleccionarSound();
 			sound2.play();
 			op = 'a';
+			posXboss = 52 + 70, posYboss = 12;
+			contMov = 0, contSube = 0, contBala = 0;
+
+			for (int i = 0; i < 100; ++i) { // para q se reinicien las posiciones
+				positionBala[i][0] = 0;
+				positionBala[i][1] = 0; 
+			}
+			positionBala[0][0] = posXboss;
+
 			pisoMov = 1;
 			setColor(0, 0);
 			system("cls");
