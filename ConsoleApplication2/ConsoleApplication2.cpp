@@ -16,7 +16,7 @@
 
 using namespace std;
 // -------------------------------------------------------- COSAS DE LA CONSOLA Y SU VISUALIZACION ------------------------------------------------------------------------
-void reproducirMusica(const std::string& rutaCancion, sf::Music& music) {
+void reproducirMusica(const string& rutaCancion, sf::Music& music) {
 	do {
 		if (!music.openFromFile(rutaCancion)) {
 			return; /*error de carga*/
@@ -98,10 +98,10 @@ void setConsoleFullScreen() {
 }
 // -----------------------------------------------------------------------------------------------------------------------------------------------------
 void gotoxy(int x, int y) {
-	COORD coord{};
-	coord.X = x;
-	coord.Y = y;
-	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+	COORD coorden{};
+	coorden.X = x;
+	coorden.Y = y;
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coorden);
 }
 
 void setColor(int textColor, int bgColor) { // ANSI (256 colores)
@@ -245,7 +245,6 @@ void seleccionarPausa(int& operador);
 // 1 vs 1
 void showPuntaje(int k, int x, int y);
 int mayorPunto();
-void derrota(int c);
 void puntos(int c);
 void vidaBoss(int rest, int dmg);
 void imprimirDigito(int digito, int x, int y);
@@ -254,7 +253,7 @@ void mantenerBoss(int position[][width][2]);
 void mantener1VS1(int jugador1[][width][2], int jugador2[][width][2]);
 void showImage2(int pos[][width][2], int pos2[][width][2]);
 void changePos2(int positions[][width][2], char op);
-void newchoosePosition2(char& op);
+void newchoosePosition2(char& op, char& po);
 void boat(int posXboss, int posYboss);
 void canon(int posXboss, int posYboss);
 void balas(int positionBala[][2], int contBala);
@@ -262,11 +261,15 @@ void movBoss(int& contMov, int posXboss, int posYboss);
 void showImageMenu(int &pajMov, int Xpaja, int Ypaja);
 void movPiso(int& pisoMov);
 void subeBaja(int& contador, int& posYboss);
+void pantallaDerrotaBoss(char& op, int& pisoMov, int position[3][width][2]);
+void validacionBalas(int positionBala[][2], int position[][width][2], int contador, char& op, int &movPiso);
+void posicionBala(int contSube, int positionBala[][2], int& contBala, int posYboss, int posXboss);
+bool validacionTubo1vs1(char& op, int& pisoMov, int& posicionX, int& posicionY, int& contador, int& contador1, int positionTubo[][4][2], int position[3][width][2], int& c);
 
 void aparecerTubos(int position[][4][2], int  posicionX, int posicionY, int& contador);
 void pantallaDerrota(char& op, int& pisoMov, int& posicionX, int& posicionY, int& contador, int& contador1, int position[3][width][2], int &c);
 void validacionTubo(char& op, int& pisoMov, int& posicionX, int& posicionY, int& contador, int& contador1, int positionTubo[][4][2], int position[3][width][2], int &c);
-void contadorTubos(int positionTubo[][4][2], int position[][width][2], int& contador1, int contador, int& c);
+void contadorTubos(int positionTubo[][4][2], int position[][width][2], int& contador1, int contador, int& c, bool& x);
 // void mostrarNum(int k);
 int main() {
 	string rutaCancion = "profeSong.ogg";
@@ -277,8 +280,8 @@ int main() {
 	
 	setConsoleFullScreen();
 	SetConsoleOutputCP(CP_UTF8);
-
 	OcultarCursor();
+
 	presentacion();
 
 	// cierra la consola
@@ -382,12 +385,11 @@ void presentacion() {
 			break;
 		}
 	} while (op != 4);
-
-	gotoxy(27, 50);
 }
 
 void mantenerJuego(int position[][width][2]) {
-	char op=0;
+	char op = 0;
+	bool x = true;
 	int pisoMov = 1;
 	int posicionX = 88 + 48, posicionY = 41, contador = 0, contador1 = 0;
 	int positionTubo[10][4][2], c = 0;
@@ -397,7 +399,6 @@ void mantenerJuego(int position[][width][2]) {
 	piso();
 	background();
 	do {
-		OcultarCursor();
 		movPiso(pisoMov);
 		showImage(position, op);
 		newchoosePosition(op);
@@ -407,13 +408,14 @@ void mantenerJuego(int position[][width][2]) {
 		aparecerTubos(positionTubo, posicionX, posicionY, contador);
 		if (contador != 0)
 			validacionTubo(op, pisoMov, posicionX, posicionY, contador, contador1, positionTubo, position, c);
-		contadorTubos(positionTubo, position, contador1, contador, c);
+		contadorTubos(positionTubo, position, contador1, contador, c, x);
 	} while (op != 'q');
 }
 
 //falta poner la anim de los pajaros para el 1 vs 1
-void mantener1VS1(int jugador1[][width][2], int jugador2[][width][2]) { // -------------------------------- 1 vs 1
+void mantener1VS1(int jugador1[][width][2], int jugador2[][width][2]) {
 	char op, po;
+	int derrota1, derrota2;
 	int pisoMov = 0;
 	int posicionX = 88 + 48, posicionY = 41, contador = 0, contador1 = 0;
 	int positionTubo[10][4][2], c = 0;
@@ -425,8 +427,7 @@ void mantener1VS1(int jugador1[][width][2], int jugador2[][width][2]) { // -----
 	do {
 		OcultarCursor();
 		showImage2(jugador1, jugador2);
-		newchoosePosition(op);
-		newchoosePosition2(po);
+		newchoosePosition2(op, po);
 		showClearImage(jugador1);
 		showClearImage(jugador2);
 		changePos(jugador1, op);
@@ -435,11 +436,20 @@ void mantener1VS1(int jugador1[][width][2], int jugador2[][width][2]) { // -----
 		background();
 		aparecerTubos(positionTubo, posicionX, posicionY, contador);
 		if (contador != 0) {
-			validacionTubo(op, pisoMov, posicionX, posicionY, contador, contador1, positionTubo, jugador1, c);
-			validacionTubo(op, pisoMov, posicionX, posicionY, contador, contador1, positionTubo, jugador2, c);
+			derrota1 = validacionTubo1vs1(op, pisoMov, posicionX, posicionY, contador, contador1, positionTubo, jugador1, c);
+			derrota2 = validacionTubo1vs1(po, pisoMov, posicionX, posicionY, contador, contador1, positionTubo, jugador2, c);
+			if (derrota1 == 0) {
+				pantallaDerrota(op, pisoMov, posicionX, posicionY, contador, contador1, jugador1, c);
+				break;
+			}
+			else if (derrota2 == 0) {
+				pantallaDerrota(po, pisoMov, posicionX, posicionY, contador, contador1, jugador2, c);
+				break;
+			}
 		}
-	} while (op != 'q');
+	} while (po != 'q' || op != 'q');
 }
+
 
 void mantenerBoss(int position[][width][2]) {
 	char op = 0;
@@ -447,6 +457,7 @@ void mantenerBoss(int position[][width][2]) {
 	int posXboss = 52 + 70, posYboss = 12;
 	int contMov = 0, contSube = 0, contBala = 0;
 	int positionBala[100][2]; positionBala[0][0] = posXboss;
+	int muroBala[10][2];
 	setColor(0, 0);
 	system("cls");
 	SetConsoleRegionColor(52, 0, 100, 54, 3, 80);
@@ -457,7 +468,6 @@ void mantenerBoss(int position[][width][2]) {
 			positionBala[contBala][0] = posXboss - 7; positionBala[contBala][1] = posYboss + 13;
 			contBala++;
 		}
-		OcultarCursor();
 		showImage(position, op);
 		newchoosePosition(op);
 		showClearImage(position);
@@ -467,8 +477,10 @@ void mantenerBoss(int position[][width][2]) {
 		movBoss(contMov, posXboss, posYboss);
 		boat(posXboss, posYboss);
 		canon(posXboss, posYboss);
-		subeBaja(contSube, posYboss);
+		if (contSube != 31)
+			subeBaja(contSube, posYboss);
 		balas(positionBala, contBala);
+		validacionBalas(positionBala, position, contBala, op,pisoMov);
 	} while (op != 'q');
 
 }
@@ -509,16 +521,41 @@ void canon(int posXboss, int posYboss) {
 	gotoxy(posXboss, posYboss + 3); setColor(0, 234); cout << "█ ▄█▄   █";
 	gotoxy(posXboss, posYboss + 4); setColor(0, 80); cout << "██  ███▀";
 }
+void posicionBala(int contSube, int positionBala[][2], int& contBala, int posYboss, int posXboss) {
+	if (contSube % 3 == 0) {
+		positionBala[contBala][0] = posXboss - 7; positionBala[contBala][1] = posYboss + 13;
+		contBala++;
+	}
+}
 void balas(int positionBala[][2], int contBala) {
 	for (int i = 0; i < contBala; i++) {
 		clearRegion(positionBala[i][0], positionBala[i][1], positionBala[i][0] + 7, positionBala[i][1] + 2);
-		gotoxy(positionBala[i][0], positionBala[i][1]); setColor(124, 80); cout <<    "▄███▄";
+		gotoxy(positionBala[i][0], positionBala[i][1]); setColor(124, 80); cout << "▄███▄";
 		gotoxy(positionBala[i][0], positionBala[i][1] + 1); setColor(88, 80); cout << "█████";
 		gotoxy(positionBala[i][0], positionBala[i][1] + 2); setColor(52, 80); cout << "▀███▀";
 	}
 	for (int i = 0; i < contBala; i++) {
 		positionBala[i][0] -= 3;
 	}
+	if (positionBala[0][0] <= 40) {
+		clearRegion(positionBala[0][0], positionBala[0][1], positionBala[0][0] + 5, positionBala[0][1] + 3);
+		for (int i = 0; i < contBala; i++) {
+			positionBala[i][0] = positionBala[i + 1][0];
+			positionBala[i][1] = positionBala[i + 1][1];
+		}
+		contBala--;
+	}
+}
+
+void validacionBalas(int positionBala[][2], int position[][width][2], int contador, char& op, int& pisoMov) {
+	for (int i = 1; i <= contador; i++) {
+		if ((positionBala[i][0] <= position[0][8][0] && positionBala[i][0] >= position[0][0][0]) || (positionBala[i][0] + 5 <= position[2][0][0] && positionBala[i][0] + 5 >= position[2][0][0])) {
+			if ((position[0][0][1] <= positionBala[i][1] && position[2][0][1] >= positionBala[i][1]) || (position[0][0][1] <= positionBala[i][1] + 3 && position[2][0][1] >= positionBala[i][1] + 3)) {
+				pantallaDerrotaBoss(op, pisoMov, position);
+			}
+		}
+	}
+	//Esquinas: position [0-2][0-8][0-1] 
 }
 
 void movBoss(int& contMov, int posXboss, int posYboss) {
@@ -557,13 +594,16 @@ void movBoss(int& contMov, int posXboss, int posYboss) {
 		contMov = 0;
 }
 
-void contadorTubos(int positionTubo[][4][2], int position[][width][2], int& contador1, int contador, int& c) {
-	if (positionTubo[1][1][0] == position[2][0][0] + 1) {
+void contadorTubos(int positionTubo[][4][2], int position[][width][2], int& contador1, int contador, int& c, bool& x) {
+	if (positionTubo[1][1][0] > position[2][0][0] + 1)
+		x = true;
+	if (positionTubo[1][1][0] <= position[2][0][0] + 1 && x) {
 		static bool soundLoaded = false;
 		if (!soundLoaded) {
 			tuboSound();
 			soundLoaded = true;
 		}
+		x = false;
 		tuboSound();
 		sound2.play();
 		c++;
@@ -571,13 +611,89 @@ void contadorTubos(int positionTubo[][4][2], int position[][width][2], int& cont
 		showPuntaje(c, 99, 46);
 	}
 }
+void pantallaDerrotaBoss(char& op, int& pisoMov, int position[3][width][2]) {
+	int operador = 1;
+	do {
+		pantallaGameOver(); // "game over"
 
+		static bool soundLoaded = false;
+
+		if (!soundLoaded) {
+			golpeSound();
+			soundLoaded = true;
+		}
+		golpeSound();
+		sound.play();
+
+		seleccionarPausa(operador);
+
+		// uno por uno q pereza :v
+		int posXpaja = 25 + 52, posYpaja = 15;
+		position[0][0][0] = posXpaja + 0; position[0][0][1] = posYpaja + 0;
+		position[0][1][0] = posXpaja + 1; position[0][1][1] = posYpaja + 0;
+		position[0][2][0] = posXpaja + 2; position[0][2][1] = posYpaja + 0;
+		position[0][3][0] = posXpaja + 3; position[0][3][1] = posYpaja + 0;
+		position[0][4][0] = posXpaja + 4; position[0][4][1] = posYpaja + 0;
+		position[0][5][0] = posXpaja + 5; position[0][5][1] = posYpaja + 0;
+		position[0][6][0] = posXpaja + 6; position[0][6][1] = posYpaja + 0;
+		position[0][7][0] = posXpaja + 7; position[0][7][1] = posYpaja + 0;
+		position[0][8][0] = posXpaja + 8; position[0][8][1] = posYpaja + 0;
+
+		position[1][0][0] = posXpaja + 0; position[1][0][1] = posYpaja + 1;
+		position[1][1][0] = posXpaja + 1; position[1][1][1] = posYpaja + 1;
+		position[1][2][0] = posXpaja + 2; position[1][2][1] = posYpaja + 1;
+		position[1][3][0] = posXpaja + 3; position[1][3][1] = posYpaja + 1;
+		position[1][4][0] = posXpaja + 4; position[1][4][1] = posYpaja + 1;
+		position[1][5][0] = posXpaja + 5; position[1][5][1] = posYpaja + 1;
+		position[1][6][0] = posXpaja + 6; position[1][6][1] = posYpaja + 1;
+		position[1][7][0] = posXpaja + 7; position[1][7][1] = posYpaja + 1;
+		position[1][8][0] = posXpaja + 8; position[1][8][1] = posYpaja + 1;
+
+		position[2][0][0] = posXpaja + 0; position[2][0][1] = posYpaja + 2;
+		position[2][1][0] = posXpaja + 1; position[2][1][1] = posYpaja + 2;
+		position[2][2][0] = posXpaja + 2; position[2][2][1] = posYpaja + 2;
+		position[2][3][0] = posXpaja + 3; position[2][3][1] = posYpaja + 2;
+		position[2][4][0] = posXpaja + 4; position[2][4][1] = posYpaja + 2;
+		position[2][5][0] = posXpaja + 5; position[2][5][1] = posYpaja + 2;
+		position[2][6][0] = posXpaja + 6; position[2][6][1] = posYpaja + 2;
+		position[2][7][0] = posXpaja + 7; position[2][7][1] = posYpaja + 2;
+		position[2][8][0] = posXpaja + 8; position[2][8][1] = posYpaja + 2;
+
+		if (!soundLoaded) {
+			menuSound();
+			soundLoaded = true;
+		}
+
+		if (!soundLoaded) {
+			seleccionarSound();
+			soundLoaded = true;
+		}
+		switch (operador) {
+		case 1:
+			seleccionarSound();
+			sound2.play();
+			op = 'a';
+			pisoMov = 1;
+			setColor(0, 0);
+			system("cls");
+			SetConsoleRegionColor(52, 0, 100, 54, 3, 80);
+			background();
+			piso();
+			break; // op random q no sea q
+		case 2:
+			menuSound();
+			sound2.play();
+			op = 'q';
+			break;
+		}
+	} while (op != 'q' && op != 'a');
+}
 void pantallaDerrota(char& op, int &pisoMov, int &posicionX, int &posicionY, int &contador, int &contador1, int position[3][width][2], int &c) {
 	int operador = 1;
 	do {
-		pantallaGameOver();
+		pantallaGameOver(); // "game over"
 		puntajeScreen(52 + 35, 12);
-		derrota(c);
+		puntos(c);
 
 		static bool soundLoaded = false;
 
@@ -655,10 +771,6 @@ void pantallaDerrota(char& op, int &pisoMov, int &posicionX, int &posicionY, int
 			break;
 		}
 	} while (op != 'q' && op != 'a');
-}
-
-void derrota(int c) {
-	puntos(c);
 }
 void puntos(int c) {
 	fstream record("puntuacion.txt", ios::app | ios::in);
@@ -825,16 +937,25 @@ void limpiarPantalla(int x1, int y1, int x2, int y2) {
 }
 
 void validacionTubo(char& op, int& pisoMov, int& posicionX, int& posicionY, int& contador, int& contador1, int positionTubo[][4][2], int position[3][width][2], int &c) {
-	for (int i = 1; i <= contador; i++) {
-		if ((positionTubo[i][0][0] <= position[0][8][0] && positionTubo[i][1][0] >= position[0][0][0]) || (positionTubo[i][0][0] <= position[2][0][0] && positionTubo[i][1][0] >= position[2][0][0])) {
-			if (position[0][0][1] > positionTubo[i][0][1] && position[2][0][1] < positionTubo[i][2][1]) {}
-			else
-				pantallaDerrota(op, pisoMov, posicionX, posicionY, contador, contador1, position, c);
-		}
+	int i = 1;
+	if ((positionTubo[i][0][0] <= position[0][8][0] && positionTubo[i][1][0] >= position[0][0][0]) || (positionTubo[i][0][0] <= position[2][0][0] && positionTubo[i][1][0] >= position[2][0][0])) {
+		if (position[0][0][1] > positionTubo[i][0][1] && position[2][0][1] < positionTubo[i][2][1]) {}
+		else
+			pantallaDerrota(op, pisoMov, posicionX, posicionY, contador, contador1, position, c);
 	}
 	//Esquinas: position [0-2][0-8][0-1] 
 }
-
+bool validacionTubo1vs1(char& op, int& pisoMov, int& posicionX, int& posicionY, int& contador, int& contador1, int positionTubo[][4][2], int position[3][width][2], int& c) {
+	for (int i = 1; i <= contador; i++) {
+		if ((positionTubo[i][0][0] <= position[0][8][0] && positionTubo[i][1][0] >= position[0][0][0]) || (positionTubo[i][0][0] <= position[2][0][0] && positionTubo[i][1][0] >= position[2][0][0])) {
+			if (position[0][0][1] > positionTubo[i][0][1] && position[2][0][1] < positionTubo[i][2][1]) {
+				return 1;
+			}
+			else
+				return 0;
+		}
+	}
+}
 void background() {
 	int posXfondo = 52;
 	int posYfondo = 32;
@@ -905,59 +1026,32 @@ void imprimirTubo(int posXtub, int posYpos, int tamano, int hueco, int tamano2) 
 void aparecerTubos(int position[][4][2], int  posicionX, int posicionY, int& contador) {
 	int Puntos = 4, XY = 2;
 	int tamano = 4 + rand() % 19;
-	int hueco = 14 + rand() % 3;
+	int hueco = 10 + rand() % 3;
 	int tamano2 = 41 - hueco - tamano;
-	int distancia = 110;
-	if (contador < 100) {
-		if (contador == 0) {
-			contador++;
-			position[contador][0][0] = posicionX;
-			position[contador][0][1] = tamano2 + 1;
-			position[contador][1][0] = posicionX + 11;
-			position[contador][1][1] = tamano2;
-			position[contador][2][0] = posicionX;
-			position[contador][2][1] = tamano2 + hueco - 1;
-			position[contador][3][0] = posicionX + 11;
-			position[contador][3][1] = tamano2 + hueco - 1;
-		}
-		else {
-			if (position[contador][1][0] + distancia < 100 + 77) {
-				contador++;
-				position[contador][0][0] = posicionX;
-				position[contador][0][1] = tamano2 + 1;
-				position[contador][1][0] = posicionX + 11;
-				position[contador][1][1] = tamano2;
-				position[contador][2][0] = posicionX;
-				position[contador][2][1] = tamano2 + hueco - 1;
-				position[contador][3][0] = posicionX + 11;
-			}
-		}
 
-		if (contador > 0) {
-			for (int i = 1; i <= contador; i++) {
-				imprimirTubo(position[i][0][0], posicionY, posicionY - position[i][2][1], position[i][2][1] - position[i][0][1], position[i][0][1]);
-			}
-			for (int i = 1; i <= contador; i++) {
-				position[i][0][0] -= 3; // Mueve el tubo de 3 en 3 unidades
-				position[i][1][0] -= 3;
-				position[i][2][0] -= 3;
-				position[i][3][0] -= 3;
-			}
-		}
+	if (contador == 0) {
+		contador++;
+		position[contador][0][0] = posicionX;
+		position[contador][0][1] = tamano2 + 1;
+		position[contador][1][0] = posicionX + 11;
+		position[contador][1][1] = tamano2;
+		position[contador][2][0] = posicionX;
+		position[contador][2][1] = tamano2 + hueco - 1;
+		position[contador][3][0] = posicionX + 11;
+		position[contador][3][1] = tamano2 + hueco - 1;
+	}
 
-		if (contador > 1) {
-			if (position[1][0][0] < 77) {
-				for (int i = 1; i <= contador; i++) {
-					for (int j = 0; j < 4; j++) {
-						for (int k = 0; k < 2; k++) {
-							position[i][j][k] = position[i + 1][j][k];
-						}
-					}
-				}
-				contador--;
-				clearRegion(52, 0, 52 + 15, 41); // limpia al final la region donde termina el recorrido del tubo
-			}
-		}
+	if (contador > 0) {
+			imprimirTubo(position[1][0][0], posicionY, posicionY - position[1][2][1], position[1][2][1] - position[1][0][1], position[1][0][1]);
+			position[1][0][0] -= 3; // Mueve el tubo de 3 en 3 unidades
+			position[1][1][0] -= 3;
+			position[1][2][0] -= 3;
+			position[1][3][0] -= 3;
+	}
+
+	if (position[1][0][0] < 53) {
+		contador--;
+		clearRegion(52, 0, 52 + 15, 41); // limpia al final la region donde termina el recorrido del tubo
 	}
 }
 
@@ -1045,11 +1139,11 @@ void changePos(int positions[][width][2], char op) {
 	switch (op) {
 	case 'a':
 		pos = 0;
-		k = -1;
+		k = -10;
 		break;
 	case 'd':
 		pos = 0;
-		k = 1;
+		k = 10;
 		break;
 	case 'w':
 		k = -4;
@@ -1094,15 +1188,15 @@ void changePos(int positions[][width][2], char op) {
 void changePos2(int positions[][width][2], char op) { // --------------------------------- jugador 2
 	int pos = 1, k = 0;
 	switch (op) {
-	case '75':
+	case 75:
 		pos = 0;
-		k = -1;
+		k = -10;
 		break;
-	case '77':
+	case 77:
 		pos = 0;
-		k = 1;
+		k = 10;
 		break;
-	case '72':
+	case 72:
 		k = -3;
 		break;
 	case 'x':
@@ -1129,7 +1223,7 @@ void changePos2(int positions[][width][2], char op) { // -----------------------
 		if (positions[height - 1][j][1] + k > 41) {
 			k = 1;
 		}
-		if (positions[i][j][pos] + k >= 0  && positions[height - 1][j][1] + k <= 41) {
+		if (positions[i][j][pos] + k >= 0 && positions[height - 1][j][1] + k <= 41) {
 			for (int j = 0; j < width; j++) {
 				positions[i][j][pos] += k;
 			}
@@ -1164,11 +1258,10 @@ void caidaSubidaIncremento(char& op) {
 }
 
 void newchoosePosition(char& op) {
-	auto start = std::chrono::high_resolution_clock::now();
+	auto start = chrono::high_resolution_clock::now();
 	int timeout_ms = 50;
 	while (true) {
 		if (_kbhit()) {
-
 			op = _getch();
 			setColor(80, 80);
 			if (op == 'a' || op == 'd' || op == 'w' || op == 'q') {
@@ -1176,8 +1269,8 @@ void newchoosePosition(char& op) {
 			}
 		}
 		setColor(80, 80);
-		auto now = std::chrono::high_resolution_clock::now();
-		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();
+		auto now = chrono::high_resolution_clock::now();
+		auto duration = chrono::duration_cast<chrono::milliseconds>(now - start).count();
 		if (duration >= timeout_ms) {
 			if (op == 'w' || op == 'x' || op == 'y') {
 				caidaSubidaIncremento(op);
@@ -1191,18 +1284,29 @@ void newchoosePosition(char& op) {
 
 			return;
 		}
-		this_thread::sleep_for(std::chrono::milliseconds(50));
+		this_thread::sleep_for(chrono::milliseconds(50));
 	}
 }
 
-void newchoosePosition2(char& op) { // ----------------------------------------- jugador 2
+void newchoosePosition2(char& op, char& po) { // ----------------------------------------- jugador 2
 	auto start = std::chrono::high_resolution_clock::now();
-	int timeout_ms = 10;
+	int timeout_ms = 50;
+	char tecla;
 	while (true) {
 		if (_kbhit()) {
-			op = _getch();
+			tecla = _getch();
 			setColor(80, 80);
-			if (op == 72 || op == 75 || op == 77 ||	 op == 'q') {
+
+			if (tecla == 'w' || tecla == 'a' || tecla == 'd') {
+				op = tecla;
+				caidaSubidaIncremento(po);
+				return;
+			}
+
+
+			else if (tecla == 72 || tecla == 75 || tecla == 77 || tecla == 'q') {
+				po = tecla;
+				caidaSubidaIncremento(op);
 				return;
 			}
 		}
@@ -1210,10 +1314,13 @@ void newchoosePosition2(char& op) { // -----------------------------------------
 		auto now = std::chrono::high_resolution_clock::now();
 		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();
 		if (duration >= timeout_ms) {
-			if (op == 72 || op == 'x' || op == 'y') {
-				caidaSubidaIncremento(op);
+			if (po == 72 || po == 'x' || po == 'y' || po == 'f' || po == 'g' || po == 'h') {
+				caidaSubidaIncremento(po);
 			}
-			else if (op == 'f' || op == 'g' || op == 'h') {
+			else {
+				po = 'f';
+			}
+			if (op == 'w' || op == 'x' || op == 'y' || op == 'f' || op == 'g' || op == 'h') {
 				caidaSubidaIncremento(op);
 			}
 			else {
