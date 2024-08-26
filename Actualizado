@@ -1,0 +1,39 @@
+void mantener1VS1(int jugador1[][width][2], int jugador2[][width][2]) { // -------------------------------- 1 vs 1
+	char op, po;
+	int derrota1, derrota2;
+	int pisoMov = 0;
+	int posicionX = 88 + 48, posicionY = 41, contador = 0, contador1 = 0;
+	int positionTubo[10][4][2], c = 0;
+	setColor(0, 0);
+	system("cls");
+	SetConsoleRegionColor(52, 0, 100, 54, 3, 80);
+	background();
+	piso();
+	do {
+		OcultarCursor();
+		showImage2(jugador1, jugador2);
+		newchoosePosition2(op,po);
+		showClearImage(jugador1);
+		showClearImage(jugador2);
+		changePos(jugador1, op);
+		movPiso(pisoMov);
+		changePos2(jugador2, po);
+		background();
+		aparecerTubos(positionTubo, posicionX, posicionY, contador);
+		if (contador != 0) {
+			derrota1 = validacionTubo1vs1(op, pisoMov, posicionX, posicionY, contador, contador1, positionTubo, jugador1, c);
+			derrota2 = validacionTubo1vs1(po, pisoMov, posicionX, posicionY, contador, contador1, positionTubo, jugador2, c);
+			if (derrota1 == 0 || derrota2 == 0){
+				if (derrota1 == 0) {
+					pantallaDerrota(op, pisoMov, posicionX, posicionY, contador, contador1, jugador1, c);
+
+				}
+				else {
+					pantallaDerrota(po, pisoMov, posicionX, posicionY, contador, contador1, jugador2, c);
+
+				}
+			}
+		}
+		contadorTubos(positionTubo, jugador1, contador1, contador, c);
+	} while (po != 'q' && op != 'q');
+}
