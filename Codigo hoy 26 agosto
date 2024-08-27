@@ -1254,6 +1254,7 @@ void changePos2(int positions[][width][2], char op) { // -----------------------
 	case 'e':
 		pos = 0;
 		k = 3;
+		break;
 	case 72:
 		k = -4;
 		saltoSound();
