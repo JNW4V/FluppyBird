@@ -42,6 +42,28 @@ void saltoSound() {
 	}
 	sound.setBuffer(buffer);
 }
+void dashSound() {
+	if (!buffer.loadFromFile("dash.ogg")) {
+		cerr << "Error al cargar el archivo de sonido" << endl;
+		return;
+	}
+	sound.setBuffer(buffer);
+}
+void golpeSound() {
+	if (!buffer2.loadFromFile("golpe.ogg")) {
+		cerr << "Error al cargar el archivo de sonido" << endl;
+		return;
+	}
+	sound2.setBuffer(buffer2);
+}
+void tuboSound() {
+	if (!buffer2.loadFromFile("tubo.ogg")) {
+		cerr << "Error al cargar el archivo de sonido" << endl;
+		return;
+	}
+	sound2.setBuffer(buffer2);
+}
+
 void seleccionarSound() {
 	if (!buffer2.loadFromFile("ingame.ogg")) {
 		cerr << "Error al cargar el archivo de sonido" << endl;
@@ -51,20 +73,6 @@ void seleccionarSound() {
 }
 void menuSound() {
 	if (!buffer2.loadFromFile("menu.ogg")) {
-		cerr << "Error al cargar el archivo de sonido" << endl;
-		return;
-	}
-	sound2.setBuffer(buffer2);
-}
-void golpeSound() {
-	if (!buffer.loadFromFile("golpe.ogg")) {
-		cerr << "Error al cargar el archivo de sonido" << endl;
-		return;
-	}
-	sound.setBuffer(buffer);
-}
-void tuboSound() {
-	if (!buffer2.loadFromFile("tubo.ogg")) {
 		cerr << "Error al cargar el archivo de sonido" << endl;
 		return;
 	}
@@ -226,7 +234,7 @@ void puntajeScreen(int posXover, int posYover) {
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 void OcultarCursor();
 void gotoxy(int x, int y);
-void showImage(int pos[][width][2], char opMov);
+void showImage(int pos[][width][2], char opMov, bool& e, int& xDash, int& yDash);
 void showClearImage(int pos[][width][2]);
 void changePos(int position[][width][2], char op);
 void mantenerJuego(int position[][width][2]);
@@ -240,7 +248,7 @@ void gotoxy(int x, int y);
 void setColor(int textColor, int backgroundColor);
 void titulo(int x, int y);
 void background();
-void seleccionarMenu(int& op, char &selec, int &xf, int &yf);
+void seleccionarMenu(int& op, char& selec, int& xf, int& yf);
 void seleccionarPausa(int& operador);
 // 1 vs 1
 void showPuntaje(int k, int x, int y);
@@ -249,26 +257,33 @@ void puntos(int c);
 void vidaBoss(int rest, int dmg);
 void imprimirDigito(int digito, int x, int y);
 void limpiarPantalla(int x1, int y1, int x2, int y2);
-void mantenerBoss(int position[][width][2]);
 void mantener1VS1(int jugador1[][width][2], int jugador2[][width][2]);
 void showImage2(int pos[][width][2], int pos2[][width][2]);
 void changePos2(int positions[][width][2], char op);
 void newchoosePosition2(char& op, char& po);
+void showImageMenu(int& pajMov, int Xpaja, int Ypaja);
+void movPiso(int& pisoMov);
+void clearDash(int xDash, int yDash, int& cDash, bool e);
+//BOSS
+void movBoss(int& contMov, int posXboss, int posYboss);
+void mantenerBoss(int position[][width][2]);
+void vidaBoss(int rest, int dmg);
+void mantenerBoss(int position[][width][2]);
 void boat(int posXboss, int posYboss);
 void canon(int posXboss, int posYboss);
-void balas(int positionBala[][2], int contBala);
-void movBoss(int& contMov, int posXboss, int posYboss);
-void showImageMenu(int &pajMov, int Xpaja, int Ypaja);
-void movPiso(int& pisoMov);
 void subeBaja(int& contador, int& posYboss);
 void pantallaDerrotaBoss(char& op, int& pisoMov, int position[3][width][2], int& posXboss, int& posYboss, int& contMov, int& contSube, int& contBala, int positionBala[][2]);
 void validacionBalas(int positionBala[][2], int position[][width][2], int contador, char& op, int& pisoMov, int& posXboss, int& posYboss, int& contMov, int& contSube, int& contBala);
 void posicionBala(int contSube, int positionBala[][2], int& contBala, int posYboss, int posXboss);
 bool validacionTubo1vs1(char& op, int& pisoMov, int& posicionX, int& posicionY, int& contador, int& contador1, int positionTubo[][4][2], int position[3][width][2], int& c);
+void tpBOSS(int& posYboss, int aumento);
+void muroBala(int posYboss, int posXboss);
+void balas(int positionBala[][2], int& contBala);
+void balas(int positionBala[][2], int& contBala);
 
 void aparecerTubos(int position[][4][2], int  posicionX, int posicionY, int& contador);
-void pantallaDerrota(char& op, int& pisoMov, int& posicionX, int& posicionY, int& contador, int& contador1, int position[3][width][2], int &c);
-void validacionTubo(char& op, int& pisoMov, int& posicionX, int& posicionY, int& contador, int& contador1, int positionTubo[][4][2], int position[3][width][2], int &c);
+void pantallaDerrota(char& op, int& pisoMov, int& posicionX, int& posicionY, int& contador, int& contador1, int position[3][width][2], int& c, bool& e, int& xDash, int& yDash, int& cDash);
+void validacionTubo(char& op, int& pisoMov, int& posicionX, int& posicionY, int& contador, int& contador1, int positionTubo[][4][2], int position[3][width][2], int& c, bool& e, int& xDash, int& yDash, int& cDash);
 void contadorTubos(int positionTubo[][4][2], int position[][width][2], int& contador1, int contador, int& c, bool& x);
 // void mostrarNum(int k);
 int main() {
@@ -389,7 +404,8 @@ void presentacion() {
 
 void mantenerJuego(int position[][width][2]) {
 	char op = 0;
-	bool x = true;
+	bool x = true, e = false;
+	int xDash = 0, yDash = 0, cDash = 0;
 	int pisoMov = 1;
 	int posicionX = 88 + 48, posicionY = 41, contador = 0, contador1 = 0;
 	int positionTubo[10][4][2], c = 0;
@@ -400,14 +416,15 @@ void mantenerJuego(int position[][width][2]) {
 	background();
 	do {
 		movPiso(pisoMov);
-		showImage(position, op);
+		clearDash(xDash, yDash, cDash, e);
+		showImage(position, op, e, xDash, yDash);
 		newchoosePosition(op);
 		showClearImage(position); // limpia la region del pajaro despues de su movimiento (tiene como variable a position, basicamente como si fuera la sobra de showImage, solo q lo limpia)
 		changePos(position, op);
 		background();
 		aparecerTubos(positionTubo, posicionX, posicionY, contador);
 		if (contador != 0)
-			validacionTubo(op, pisoMov, posicionX, posicionY, contador, contador1, positionTubo, position, c);
+			validacionTubo(op, pisoMov, posicionX, posicionY, contador, contador1, positionTubo, position, c, e, xDash, yDash, cDash);
 		contadorTubos(positionTubo, position, contador1, contador, c, x);
 	} while (op != 'q');
 }
@@ -415,7 +432,8 @@ void mantenerJuego(int position[][width][2]) {
 //falta poner la anim de los pajaros para el 1 vs 1
 void mantener1VS1(int jugador1[][width][2], int jugador2[][width][2]) { // -------------------------------- 1 vs 1
 	char op, po;
-	bool x = true;
+	bool x = true, e = false;
+	int xDash = 0, yDash = 0, cDash = 0;
 	int derrota1, derrota2;
 	int pisoMov = 0;
 	int posicionX = 88 + 48, posicionY = 41, contador = 0, contador1 = 0;
@@ -441,11 +459,11 @@ void mantener1VS1(int jugador1[][width][2], int jugador2[][width][2]) { // -----
 			derrota2 = validacionTubo1vs1(po, pisoMov, posicionX, posicionY, contador, contador1, positionTubo, jugador2, c);
 			if (derrota1 == 0 || derrota2 == 0) {
 				if (derrota1 == 0) {
-					pantallaDerrota(op, pisoMov, posicionX, posicionY, contador, contador1, jugador1, c);
+					pantallaDerrota(op, pisoMov, posicionX, posicionY, contador, contador1, jugador1, c, e, xDash, yDash, cDash);
 
 				}
 				else {
-					pantallaDerrota(po, pisoMov, posicionX, posicionY, contador, contador1, jugador2, c);
+					pantallaDerrota(po, pisoMov, posicionX, posicionY, contador, contador1, jugador2, c, e, xDash, yDash, cDash);
 
 				}
 			}
@@ -454,26 +472,23 @@ void mantener1VS1(int jugador1[][width][2], int jugador2[][width][2]) { // -----
 	} while (po != 'q' && op != 'q');
 }
 
-
 void mantenerBoss(int position[][width][2]) {
 	char op = 0;
+	bool e = false;
+	int xDash = 0, yDash = 0, cDash = 0;
 	int pisoMov = 0;
 	int posXboss = 52 + 70, posYboss = 12;
 	int contMov = 0, contSube = 0, contBala = 0;
 	int positionBala[100][2]; positionBala[0][0] = posXboss;
-	int muroBala[10][2];
 	setColor(0, 0);
 	system("cls");
 	SetConsoleRegionColor(52, 0, 100, 54, 3, 80);
 	background();
 	piso();
 	do {
-		if (contSube % 3 == 0) {
-			positionBala[contBala][0] = posXboss - 7;
-			positionBala[contBala][1] = posYboss + 13;
-			contBala++;
-		}
-		showImage(position, op);
+		posicionBala(contSube, positionBala, contBala, posYboss, posXboss);
+		clearDash(xDash, yDash, cDash, e);
+		showImage(position, op, e, xDash, yDash);
 		newchoosePosition(op);
 		showClearImage(position);
 		changePos(position, op);
@@ -484,25 +499,47 @@ void mantenerBoss(int position[][width][2]) {
 		canon(posXboss, posYboss);
 		if (contSube != 31)
 			subeBaja(contSube, posYboss);
+		if (contSube == 32) {
+			int aumento = -10;
+			tpBOSS(posYboss, aumento);
+			muroBala(posYboss, posXboss);
+		}
 		balas(positionBala, contBala);
-		validacionBalas(positionBala, position, contBala, op,pisoMov, posXboss, posYboss, contMov, contSube, contBala);
+		validacionBalas(positionBala, position, contBala, op, pisoMov, posXboss, posYboss, contMov, contSube, contBala);
 	} while (op != 'q');
 
 }
-
+void tpBOSS(int& posYboss, int aumento) {
+	posYboss += aumento;
+}
+void muroBala(int posYboss, int posXboss) {
+	int co = 4, c = 0;
+	int positionBala[10][2];
+	posicionBala(0, positionBala, c, posYboss, posXboss);
+	c++;
+	posicionBala(0, positionBala, c, posYboss + 3, posXboss);
+	c++;
+	posicionBala(0, positionBala, c, posYboss + 6, posXboss);
+	c++;
+	posicionBala(0, positionBala, c, posYboss + 9, posXboss);
+	c++;
+	posicionBala(0, positionBala, c, posYboss + 12, posXboss);
+	balas(positionBala, co);
+}
 void subeBaja(int& contador, int& posYboss) {
-
+	if (contador > 32)
+		contador--;
 	if (contador <= 10)
 		posYboss--;
 	else if (contador <= 25)
 		posYboss++;
 	else if (contador <= 30)
 		posYboss--;
-	else if (contador == 31)
-		contador = 0;
+	else if (contador == 31) {
+		contador = 32;
+	}
 	contador++;
 }
-
 void boat(int posXboss, int posYboss) {
 	posYboss = posYboss + 10 + 1;
 	clearRegion(posXboss, posYboss, posXboss + 29, posYboss + 10);
@@ -532,7 +569,7 @@ void posicionBala(int contSube, int positionBala[][2], int& contBala, int posYbo
 		contBala++;
 	}
 }
-void balas(int positionBala[][2], int contBala) {
+void balas(int positionBala[][2], int& contBala) {
 	for (int i = 0; i < contBala; i++) {
 		clearRegion(positionBala[i][0], positionBala[i][1], positionBala[i][0] + 7, positionBala[i][1] + 2);
 		gotoxy(positionBala[i][0], positionBala[i][1]); setColor(124, 80); cout << "▄███▄     ";
@@ -628,7 +665,7 @@ void pantallaDerrotaBoss(char& op, int& pisoMov, int position[3][width][2],int& 
 			soundLoaded = true;
 		}
 		golpeSound();
-		sound.play();
+		sound2.play();
 
 		seleccionarPausa(operador);
 
@@ -703,7 +740,7 @@ void pantallaDerrotaBoss(char& op, int& pisoMov, int position[3][width][2],int& 
 	} while (op != 'q' && op != 'a');
 }
 
-void pantallaDerrota(char& op, int &pisoMov, int &posicionX, int &posicionY, int &contador, int &contador1, int position[3][width][2], int &c) {
+void pantallaDerrota(char& op, int &pisoMov, int &posicionX, int &posicionY, int &contador, int &contador1, int position[3][width][2], int &c, bool &e, int &xDash, int& yDash, int& cDash) {
 	int operador = 1;
 	do {
 		pantallaGameOver(); // "game over"
@@ -717,7 +754,7 @@ void pantallaDerrota(char& op, int &pisoMov, int &posicionX, int &posicionY, int
 			soundLoaded = true;
 		}
 		golpeSound();
-		sound.play();
+		sound2.play();
 
 		seleccionarPausa(operador);
 
@@ -767,6 +804,8 @@ void pantallaDerrota(char& op, int &pisoMov, int &posicionX, int &posicionY, int
 			seleccionarSound();
 			sound2.play();
 			op = 'a';
+			e = false;
+			xDash = 0, yDash = 0, cDash = 0;
 			pisoMov = 1;
 			posicionX = 88 + 48;
 			posicionY = 41;
@@ -951,12 +990,12 @@ void limpiarPantalla(int x1, int y1, int x2, int y2) {
 	}
 }
 
-void validacionTubo(char& op, int& pisoMov, int& posicionX, int& posicionY, int& contador, int& contador1, int positionTubo[][4][2], int position[3][width][2], int &c) {
+void validacionTubo(char& op, int& pisoMov, int& posicionX, int& posicionY, int& contador, int& contador1, int positionTubo[][4][2], int position[3][width][2], int& c, bool& e, int& xDash, int& yDash, int& cDash) {
 	int i = 1;
 	if ((positionTubo[i][0][0] <= position[0][8][0] && positionTubo[i][1][0] >= position[0][0][0]) || (positionTubo[i][0][0] <= position[2][0][0] && positionTubo[i][1][0] >= position[2][0][0])) {
 		if (position[0][0][1] > positionTubo[i][0][1] && position[2][0][1] < positionTubo[i][2][1]) {}
 		else
-			pantallaDerrota(op, pisoMov, posicionX, posicionY, contador, contador1, position, c);
+			pantallaDerrota(op, pisoMov, posicionX, posicionY, contador, contador1, position, c, e, xDash, yDash, cDash);
 	}
 	//Esquinas: position [0-2][0-8][0-1] 
 }
@@ -1041,7 +1080,7 @@ void imprimirTubo(int posXtub, int posYpos, int tamano, int hueco, int tamano2) 
 void aparecerTubos(int position[][4][2], int  posicionX, int posicionY, int& contador) {
 	int Puntos = 4, XY = 2;
 	int tamano = 4 + rand() % 19;
-	int hueco = 10 + rand() % 3;
+	int hueco = 15 + rand() % 3;
 	int tamano2 = 41 - hueco - tamano;
 
 	if (contador == 0) {
@@ -1057,11 +1096,11 @@ void aparecerTubos(int position[][4][2], int  posicionX, int posicionY, int& con
 	}
 
 	if (contador > 0) {
-			imprimirTubo(position[1][0][0], posicionY, posicionY - position[1][2][1], position[1][2][1] - position[1][0][1], position[1][0][1]);
-			position[1][0][0] -= 3; // Mueve el tubo de 3 en 3 unidades
-			position[1][1][0] -= 3;
-			position[1][2][0] -= 3;
-			position[1][3][0] -= 3;
+		imprimirTubo(position[1][0][0], posicionY, posicionY - position[1][2][1], position[1][2][1] - position[1][0][1], position[1][0][1]);
+		position[1][0][0] -= 3; // Mueve el tubo de 3 en 3 unidades
+		position[1][1][0] -= 3;
+		position[1][2][0] -= 3;
+		position[1][3][0] -= 3;
 	}
 
 	if (position[1][0][0] < 53) {
@@ -1078,8 +1117,9 @@ void personaje2() {
 }
 // ---------------------------------------------
 // mov del pajaro en el juego
-void showImage(int pos[][width][2], char opMov) {
-	if (opMov != 'w' && opMov != 'x' && opMov != 'y') {
+void showImage(int pos[][width][2], char opMov, bool& e, int& xDash, int& yDash) {
+
+	if (opMov != 'w' && opMov != 'x' && opMov != 'y' && opMov != 'd' && opMov != 'e' && e == false) {
 		gotoxy(pos[0][0][0], pos[0][0][1]); setColor(25, 80); cout << "   ▄▄▄"; setColor(15, 80); cout << "▄▄";
 		gotoxy(pos[1][0][0], pos[1][0][1]); setColor(39, 25); cout << "██▄"; setColor(25, 80); cout << "███"; setColor(15, 80); cout << "█"; setColor(66, 0); cout << "▀"; setColor(15, 80); cout << "█";
 		gotoxy(pos[2][0][0], pos[2][0][1]); setColor(39, 80); cout << " ▀█"; setColor(25, 80); cout << "████"; setColor(202, 208); cout << "▄▄▄";
@@ -1088,15 +1128,49 @@ void showImage(int pos[][width][2], char opMov) {
 		gotoxy(pos[0][0][0], pos[0][0][1]); setColor(25, 80); cout << "      "; setColor(15, 80); cout << "  ";
 		gotoxy(pos[1][0][0], pos[1][0][1]); setColor(39, 80); cout << "  "; setColor(25, 80); cout << "▄"; setColor(25, 80); cout << "███"; setColor(15, 80); cout << "█"; setColor(15, 0); cout << "▀"; setColor(15, 80); cout << "▄";
 		gotoxy(pos[2][0][0], pos[2][0][1]); setColor(39, 80); cout << "▄██"; setColor(25, 80); cout << "████"; setColor(202, 208); cout << "▄▄▄";
-
 	}
-	else {
+	else if (opMov == 'x' || opMov == 'y'){
 		gotoxy(pos[0][0][0], pos[0][0][1]); setColor(25, 80); cout << "    ▄▄"; setColor(15, 80); cout << "▄▄";
 		gotoxy(pos[1][0][0], pos[1][0][1]); setColor(39, 80); cout << "  "; setColor(25, 80); cout << "▄"; setColor(25, 80); cout << "███"; setColor(15, 80); cout << "█"; setColor(66, 0); cout << "▀"; setColor(15, 80); cout << "█";
 		gotoxy(pos[2][0][0], pos[2][0][1]); setColor(39, 80); cout << "▀██"; setColor(25, 80); cout << "████"; setColor(202, 208); cout << "▄▄▄";
 	}
-}
+	else if (opMov == 'd') {
+		gotoxy(pos[1][0][0] - 10, pos[1][0][1]); setColor(15, 80); cout << "▄▄▄▄  ▄▄";
+		gotoxy(pos[2][0][0] - 9, pos[2][0][1]); setColor(15, 80); cout << "   ▄ ▄▄";
 
+		gotoxy(pos[1][0][0]-1, pos[1][0][1]); setColor(39, 80); cout << "  "; setColor(25, 80); cout << "▄▄"; setColor(25, 80); cout << "███"; setColor(15, 80); cout << "█"; setColor(15, 0); cout << "▀"; setColor(15, 80); cout << "▄";
+		gotoxy(pos[2][0][0] - 2, pos[2][0][1]); setColor(39, 80); cout << "▀▀███"; setColor(25, 80); cout << "████"; setColor(202, 208); cout << "▄▄▄";
+		e = true;
+		xDash = pos[1][0][0], yDash = pos[1][0][1];
+	}
+	else if (opMov == 'e') {
+
+		gotoxy(pos[1][0][0] - 2, pos[1][0][1]); setColor(15, 80); cout << " ▄";
+		gotoxy(pos[2][0][0] - 2, pos[2][0][1]); setColor(15, 80); cout << "▄▄";
+
+		gotoxy(pos[0][0][0], pos[0][0][1]); setColor(25, 80); cout << "    ▄▄"; setColor(15, 80); cout << "▄▄";
+		gotoxy(pos[1][0][0], pos[1][0][1]); setColor(39, 80); cout << "  "; setColor(25, 80); cout << "▄"; setColor(25, 80); cout << "███"; setColor(15, 80); cout << "█"; setColor(66, 0); cout << "▀"; setColor(15, 80); cout << "█";
+		gotoxy(pos[2][0][0], pos[2][0][1]); setColor(39, 80); cout << "▀██"; setColor(25, 80); cout << "████"; setColor(202, 208); cout << "▄▄▄";
+
+	}
+	else if (opMov == 'f' && e == true) {
+
+		gotoxy(pos[0][0][0], pos[0][0][1]); setColor(25, 80); cout << "   ▄▄▄"; setColor(15, 80); cout << "▄▄";
+		gotoxy(pos[1][0][0], pos[1][0][1]); setColor(39, 25); cout << "██▄"; setColor(25, 80); cout << "███"; setColor(15, 80); cout << "█"; setColor(66, 0); cout << "▀"; setColor(15, 80); cout << "█";
+		gotoxy(pos[2][0][0], pos[2][0][1]); setColor(39, 80); cout << " ▀█"; setColor(25, 80); cout << "████"; setColor(202, 208); cout << "▄▄▄";
+		e = false;
+	}
+}
+void clearDash(int xDash, int yDash, int &cDash, bool e) {
+	if (cDash == 0 && e == true) {
+		clearRegion(xDash - 10, yDash, xDash, yDash + 2);
+		cDash += 1;
+	}
+	else if(cDash >= 1) {
+		clearRegion(xDash - 10, yDash, xDash + 10, yDash + 2);
+		cDash = 0;
+	}
+}
 // mov del pajaro en el menu
 void showImageMenu(int &pajMov, int Xpaja, int Ypaja) {
     if (pajMov <= 2) {
@@ -1145,6 +1219,11 @@ void changePos(int positions[][width][2], char op) {
 		saltoSound();
 		soundLoaded = true;
 	}
+
+	if (!soundLoaded) {
+		dashSound();
+		soundLoaded = true;
+	}
 	/* del chapt gpt :v:
 	"soundLoaded" asegura que el archivo de sonido se carga solo una vez, cuando se llama por primera vez a changePos.
 	Esto significa que todas las llamadas posteriores simplemente reproducen el sonido desde la memoria, evitando la carga repetitiva
@@ -1155,11 +1234,24 @@ void changePos(int positions[][width][2], char op) {
 	case 'a':
 		pos = 0;
 		k = -10;
+		//dashSound();
+		//sound.play();
+		break;
+	case 'b':
+		pos = 0;
+		k = -3;
 		break;
 	case 'd':
 		pos = 0;
 		k = 10;
+		dashSound();
+		sound.play();
 		break;
+	case 'e':
+		pos = 0;
+		k = 3;
+		break;
+
 	case 'w':
 		k = -4;
 		saltoSound();
@@ -1202,18 +1294,43 @@ void changePos(int positions[][width][2], char op) {
 }
 void changePos2(int positions[][width][2], char op) { // --------------------------------- jugador 2
 	int pos = 1, k = 0;
+
+	static bool soundLoaded = false;
+	if (!soundLoaded) {
+		saltoSound();
+		soundLoaded = true;
+	}
+	if (!soundLoaded) {
+		dashSound();
+		soundLoaded = true;
+	}
 	switch (op) {
 	case 75:
 		pos = 0;
 		k = -10;
+		//dashSound();
+		//sound.play();
+		break;
+	case 'b':
+		pos = 0;
+		k = -3;
 		break;
 	case 77:
 		pos = 0;
 		k = 10;
+		dashSound();
+		sound.play();
+		break;
+	case 'e':
+		pos = 0;
+		k = 3;
 		break;
 	case 72:
-		k = -3;
+		k = -4;
+		saltoSound();
+		sound.play();
 		break;
+
 	case 'x':
 		k = -2;
 		break;
@@ -1238,7 +1355,7 @@ void changePos2(int positions[][width][2], char op) { // -----------------------
 		if (positions[height - 1][j][1] + k > 41) {
 			k = 1;
 		}
-		if (positions[i][j][pos] + k >= 0 && positions[height - 1][j][1] + k <= 41) {
+		if (positions[i][j][0] + k >= 52 && positions[i][j][0] + k <= 142 && positions[i][j][1] + k >= 0 && positions[height - 1][j][1] + k <= 41) {
 			for (int j = 0; j < width; j++) {
 				positions[i][j][pos] += k;
 			}
@@ -1255,8 +1372,20 @@ void caidaSubidaIncremento(char& op) {
 	case 'w': case 72:
 		op = 'x';
 		break;
-	case 'x': 
+	case 'x':
 		op = 'y';
+		break;
+	case 'd': case 77:
+		op = 'e';
+		break;
+	case 'e':
+		op = 'f';
+		break;
+	case 'a': case 75:
+		op = 'b';
+		break;
+	case 'b':
+		op = 'f';
 		break;
 	case 'y':
 		op = 'f';
@@ -1287,15 +1416,15 @@ void newchoosePosition(char& op) {
 		auto now = chrono::high_resolution_clock::now();
 		auto duration = chrono::duration_cast<chrono::milliseconds>(now - start).count();
 		if (duration >= timeout_ms) {
-			if (op == 'w' || op == 'x' || op == 'y') {
-				caidaSubidaIncremento(op);
-			}
-			else if (op == 'f' || op == 'g' || op == 'h') {
+
+			if (op == 'w' || op == 'x' || op == 'y' || op == 'f' || op == 'g' || op == 'h' || op == 'd' || op == 'e' || op == 'a' || op == 'b') {
 				caidaSubidaIncremento(op);
 			}
 			else {
 				op = 'f';
 			}
+
+
 
 			return;
 		}
@@ -1329,18 +1458,19 @@ void newchoosePosition2(char& op, char& po) { // -------------------------------
 		auto now = std::chrono::high_resolution_clock::now();
 		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();
 		if (duration >= timeout_ms) {
-			if (po == 72 || po == 'x' || po == 'y' || po == 'f' || po == 'g' || po == 'h') {
+			if (po == 72 || po == 75 || po == 77 || po == 'x' || po == 'y' || po == 'f' || po == 'g' || po == 'h' || op == 'e' || op == 'b') {
 				caidaSubidaIncremento(po);
 			}
 			else {
 				po = 'f';
 			}
-			if (op == 'w' || op == 'x' || op == 'y' || op == 'f' || op == 'g' || op == 'h') {
+			if (op == 'w' || op == 'x' || op == 'y' || op == 'f' || op == 'g' || op == 'h' || op == 'd' || op == 'e' || op == 'a' || op == 'b') {
 				caidaSubidaIncremento(op);
 			}
 			else {
 				op = 'f';
 			}
+
 
 			return;
 		}
