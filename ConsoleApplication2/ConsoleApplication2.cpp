@@ -265,7 +265,7 @@ void showImageMenu(int& pajMov, int Xpaja, int Ypaja);
 void movPiso(int& pisoMov);
 void clearDash(int xDash, int yDash, int& cDash, bool e);
 //BOSS
-void changePos2(int positions[][width][2], char op);
+void changePosBoss(int positions[][width][2], char op);
 void movBoss(int& contMov, int posXboss, int posYboss);
 void mantenerBoss(int position[][width][2]);
 void vidaBoss(int rest, int dmg);
