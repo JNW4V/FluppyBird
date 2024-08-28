@@ -265,6 +265,7 @@ void showImageMenu(int& pajMov, int Xpaja, int Ypaja);
 void movPiso(int& pisoMov);
 void clearDash(int xDash, int yDash, int& cDash, bool e);
 //BOSS
+void changePos2(int positions[][width][2], char op);
 void movBoss(int& contMov, int posXboss, int posYboss);
 void mantenerBoss(int position[][width][2]);
 void vidaBoss(int rest, int dmg);
@@ -491,7 +492,7 @@ void mantenerBoss(int position[][width][2]) {
 		showImage(position, op, e, xDash, yDash);
 		newchoosePosition(op);
 		showClearImage(position);
-		changePos(position, op);
+		changePosBoss(position, op);
 		movPiso(pisoMov);
 		background();
 		movBoss(contMov, posXboss, posYboss);
@@ -1281,7 +1282,7 @@ void changePos(int positions[][width][2], char op) {
 		if (positions[height - 1][j][1] + k > 41) {
 			k = 1;
 		}
-		if (positions[i][j][0] + k >= 52 && positions[i][j][0] + k <= 142 && positions[i][j][1] + k >= 0 && positions[height - 1][j][1] + k <= 41) {
+		if ((positions[i][j][0] + k >= 52 || (positions[i][j][0] + k < 52 && pos == 1)) && (positions[i][j][0] + k <= 142 || (positions[i][j][0] + k > 142 && pos == 1)) && (positions[i][j][1] + k >= 0 || (positions[i][j][1] + k < 0 && pos == 0)) && (positions[height - 1][j][1] + k <= 41 || (positions[height - 1][j][1] + k > 41 && pos == 0))) {
 			for (int j = 0; j < width; j++) {
 				positions[i][j][pos] += k;
 			}
@@ -1355,7 +1356,87 @@ void changePos2(int positions[][width][2], char op) { // -----------------------
 		if (positions[height - 1][j][1] + k > 41) {
 			k = 1;
 		}
-		if (positions[i][j][0] + k >= 52 && positions[i][j][0] + k <= 142 && positions[i][j][1] + k >= 0 && positions[height - 1][j][1] + k <= 41) {
+		if ((positions[i][j][0] + k >= 52 || (positions[i][j][0] + k < 52 && pos == 1)) && (positions[i][j][0] + k <= 142 || (positions[i][j][0] + k > 142 && pos == 1)) && (positions[i][j][1] + k >= 0 || (positions[i][j][1] + k < 0 && pos == 0)) && (positions[height - 1][j][1] + k <= 41 || (positions[height - 1][j][1] + k > 41 && pos == 0))) {
+			for (int j = 0; j < width; j++) {
+				positions[i][j][pos] += k;
+			}
+		}
+		else {
+			break;
+		}
+
+	}
+}
+void changePosBoss(int positions[][width][2], char op) {
+
+	static bool soundLoaded = false;
+	if (!soundLoaded) {
+		saltoSound();
+		soundLoaded = true;
+	}
+
+	if (!soundLoaded) {
+		dashSound();
+		soundLoaded = true;
+	}
+	/* del chapt gpt :v:
+	"soundLoaded" asegura que el archivo de sonido se carga solo una vez, cuando se llama por primera vez a changePos.
+	Esto significa que todas las llamadas posteriores simplemente reproducen el sonido desde la memoria, evitando la carga repetitiva
+	del archivo desde el disco. Esto mejora significativamente el rendimiento, especialmente en escenarios donde la función se llama frecuentemente.
+	*/
+	int pos = 1, k = 0;
+	switch (op) {
+	case 'a':
+		pos = 0;
+		k = -10;
+		//dashSound();
+		//sound.play();
+		break;
+	case 'b':
+		pos = 0;
+		k = -3;
+		break;
+	case 'd':
+		pos = 0;
+		k = 10;
+		dashSound();
+		sound.play();
+		break;
+	case 'e':
+		pos = 0;
+		k = 3;
+		break;
+
+	case 'w':
+		k = -4;
+		saltoSound();
+		sound.play();
+		break;
+	case 'x':
+		k = -2;
+		break;
+	case 'y':
+		k = -1;
+		break;
+
+	case 'f':
+		k = 0;
+		break;
+
+	case 'g':
+		k = 1;
+		break;
+	case 'h':
+		k = 2;
+		break;
+
+	}
+	int j = 0;
+	for (int i = 0; i < height; i++) {
+		if (positions[height - 1][j][1] + k > 41 && pos == 1) {
+			k = 1;
+		}
+		if ((positions[i][j][0] + k >= 52	|| (positions[i][j][0] + k < 52 && pos == 1)) && (positions[i][j][0] + k <= 113 || (positions[i][j][0] + k > 113 && pos == 1) ) && (positions[i][j][1] + k >= 0 || (positions[i][j][1] + k < 0 && pos == 0)) && (positions[height - 1][j][1] + k <= 41 || (positions[height - 1][j][1] + k > 41 && pos == 0))) {
 			for (int j = 0; j < width; j++) {
 				positions[i][j][pos] += k;
 			}
