@@ -263,7 +263,7 @@ void seleccionarMenu(int& op, char& selec, int& xf, int& yf);
 void seleccionarPausa(int& operador);
 // 1 vs 1
 void imagenWin(int c1, int c2);
-void pantallaDerrota1vs1(char& op, int position[3][width][2], int c1, int c2, bool &b);
+void pantallaDerrota1vs1(char& op, int position[3][width][2], int c1, int c2, bool& b);
 
 void mostrarPuntaje(int k, int x, int y);
 int mayorPuntaje();
@@ -289,7 +289,7 @@ void mantenerBoss(int position[][width][2]);
 void boat(int posXboss, int posYboss);
 void canon(int posXboss, int posYboss);
 void subeBaja(int& contador, int& posYboss);
-void pantallaDerrotaBoss(char& op, int position[3][width][2], int positionBala[][2], bool &b);
+void pantallaDerrotaBoss(char& op, int position[3][width][2], int positionBala[][2], bool& b);
 
 void validacionBalas(int positionBala[][2], int position[][width][2], int contador, char& op, bool& a);
 void posicionBala(int contSube, int positionBala[][2], int& contBala, int posYboss, int posXboss);
@@ -303,7 +303,7 @@ void balas(int positionBala[][2], int& contBala);
 
 void aparecerTubos(int position[][4][2], int  posicionX, int posicionY, int& contador);
 void pantallaDerrota(char& op, int position[3][width][2], int c, bool& b);
-void validacionTubo(char& op, int positionTubo[][4][2], int position[3][width][2], bool &a, int c);
+void validacionTubo(char& op, int positionTubo[][4][2], int position[3][width][2], bool& a, int c);
 void contadorTubos(int positionTubo[][4][2], int position[][width][2], int& contador1, int contador, int& c, bool& x);
 // void mostrarNum(int k);
 int main() {
@@ -316,7 +316,7 @@ int main() {
 	setConsoleFullScreen();
 	SetConsoleOutputCP(CP_UTF8);
 	OcultarCursor();
-	
+
 	presentacion();
 
 	// cierra la consola
@@ -564,7 +564,7 @@ void mantenerBoss(int position[][width][2]) {
 		}
 		limpiarRegion(52, 0, 52 + 7, 32);
 		balas(positionBala, contBala);
-		validacionBalas(positionBala, position, contBala, op,a);
+		validacionBalas(positionBala, position, contBala, op, a);
 		if (a == true)
 			return mantenerBoss(position);
 
@@ -604,7 +604,7 @@ void moverMuro(int muro[][2], int& co, int position[][width][2], char& op, bool&
 			(muro[i][0] - 7 <= position[2][0][0] && muro[i][0] >= position[2][0][0])) {
 			// Verificar colisión con el muro
 			if ((position[0][0][1] <= muro[i][1] + 13 && position[2][0][1] >= muro[i][1] - 5)) {
-				pantallaDerrotaBossMuro(op, position,b);
+				pantallaDerrotaBossMuro(op, position, b);
 				if (b == false)
 					a = true;
 			}
@@ -685,7 +685,7 @@ void posicionBala(int contSube, int positionBala[][2], int& contBala, int posYbo
 void balas(int positionBala[][2], int& contBala) {
 	for (int i = 0; i < contBala; i++) {
 		limpiarRegion(positionBala[i][0], positionBala[i][1], positionBala[i][0] + 7, positionBala[i][1] + 2);
-		gotoxy(positionBala[i][0], positionBala[i][1]); setColor(124, 80); cout <<    "▄███▄     ";
+		gotoxy(positionBala[i][0], positionBala[i][1]); setColor(124, 80); cout << "▄███▄     ";
 		gotoxy(positionBala[i][0], positionBala[i][1] + 1); setColor(88, 80); cout << "█████     ";
 		gotoxy(positionBala[i][0], positionBala[i][1] + 2); setColor(52, 80); cout << "▀███▀     ";
 	}
@@ -913,7 +913,7 @@ void pantallaDerrotaBossMuro(char& op, int position[3][width][2], bool& b) {
 		}
 	} while (op != 'q' && op != 'a');
 }
-void pantallaDerrota1vs1(char& op, int position[3][width][2], int c1, int c2, bool &b) {
+void pantallaDerrota1vs1(char& op, int position[3][width][2], int c1, int c2, bool& b) {
 	int operador = 1;
 	do {
 		pantallaGameOver(); // "game over"
@@ -1003,7 +1003,7 @@ void imagenWin(int c1, int c2) { // c1 = 39 o 76 (claro) c2 = 25 o 34 (oscuro)
 	gotoxy(x, y + 5); setColor(c2, 222); cout << "     ▀▀██"; setColor(202, 208); cout << "█▄▄▄▄"; setColor(202, 222); cout << "▀▀";
 }
 
-void pantallaDerrota(char& op, int position[3][width][2], int c, bool &b) {
+void pantallaDerrota(char& op, int position[3][width][2], int c, bool& b) {
 	int operador = 1;
 	do {
 		pantallaGameOver(); // "game over"
@@ -1241,7 +1241,7 @@ void limpiarPantalla(int x1, int y1, int x2, int y2) {
 	}
 }
 
-void validacionTubo(char& op, int positionTubo[][4][2], int position[3][width][2], bool &a, int c) {
+void validacionTubo(char& op, int positionTubo[][4][2], int position[3][width][2], bool& a, int c) {
 	int i = 1;
 	bool b = false;
 	if ((positionTubo[i][0][0] <= position[0][8][0] && positionTubo[i][1][0] >= position[0][0][0]) || (positionTubo[i][0][0] <= position[2][0][0] && positionTubo[i][1][0] >= position[2][0][0])) {
@@ -1280,10 +1280,10 @@ void background() {
 	gotoxy(posXfondo + 0, posYfondo + 9); setColor(194, 151); cout << "██        █          ██     █    ██    ██    ██          ██     █     █     █     █         █      █";
 	int posXsol = 68;
 	int posYsol = 12;
-	gotoxy(posXsol + 2, posYsol + 0); setColor(229, 80); cout <<    "▄▄▄▄";
-	gotoxy(posXsol + 0, posYsol + 1); setColor(229, 80); cout <<  "▄██████▄";
+	gotoxy(posXsol + 2, posYsol + 0); setColor(229, 80); cout << "▄▄▄▄";
+	gotoxy(posXsol + 0, posYsol + 1); setColor(229, 80); cout << "▄██████▄";
 	gotoxy(posXsol + 0, posYsol + 2); setColor(229, 230); cout << "█      █";
-	gotoxy(posXsol + 0, posYsol + 3); setColor(230, 80); cout <<  " ▀████▀";
+	gotoxy(posXsol + 0, posYsol + 3); setColor(230, 80); cout << " ▀████▀";
 }
 
 void imprimirTubo(int posXtub, int posYpos, int tamano, int hueco, int tamano2) {
@@ -1653,7 +1653,7 @@ void cambiarPosBoss(int positions[][width][2], char op) {
 		if (positions[height - 1][j][1] + k > 41 && pos == 1) {
 			k = 1;
 		}
-		if ((positions[i][j][0] + k >= 52 || (positions[i][j][0] + k < 52 && pos == 1)) && (positions[i][j][0] + k <= 113 || (positions[i][j][0] + k > 113 && pos == 1)) && (positions[i][j][1] + k >= 0 || (positions[i][j][1] + k < 0 && pos == 0)) && (positions[height - 1][j][1] + k <= 41 || (positions[height - 1][j][1] + k > 41 && pos == 0))) {
+		if ((positions[i][j][0] + k >= 59 || (positions[i][j][0] + k < 59 && pos == 1)) && (positions[i][j][0] + k <= 113 || (positions[i][j][0] + k > 113 && pos == 1)) && (positions[i][j][1] + k >= 0 || (positions[i][j][1] + k < 0 && pos == 0)) && (positions[height - 1][j][1] + k <= 41 || (positions[height - 1][j][1] + k > 41 && pos == 0))) {
 			for (int j = 0; j < width; j++) {
 				positions[i][j][pos] += k;
 			}
