@@ -260,7 +260,7 @@ void mantenerJuego(int position[][width][2]);
 void nuevaPosicion(char& op);
 void caidaSubidaIncremento(char& op);
 void piso();
-void presentacion();
+void presentacion(sf::Music &inicio);
 void personaje2();
 void imprimirTubo(int posXtub, int posYpos, int tamano, int hueco, int tamano2);
 void gotoxy(int x, int y);
@@ -313,16 +313,20 @@ void validacionTubo(char& op, int positionTubo[][4][2], int position[3][width][2
 void contadorTubos(int positionTubo[][4][2], int position[][width][2], int& contador1, int contador, int& c, bool& x);
 // void mostrarNum(int k);
 int main() {
+	string rutaCancion = "Inicio.ogg";
+	sf::Music inicio;
+	thread hiloMusica(reproducirMusic, rutaCancion, ref(inicio));
 	setConsoleFullScreen();
 	SetConsoleOutputCP(CP_UTF8);
 	OcultarCursor();
-	presentacion();
+	presentacion(inicio);
 	HWND hWnd = GetConsoleWindow();
 	PostMessage(hWnd, WM_CLOSE, 0, 0);
+	hiloMusica.join();
 	return 0;
 }
 
-void presentacion() {
+void presentacion(sf::Music & inicio) {
 	int op = 1;
 	char selec;
 	int x = 60, y = 2, xf = 52 + 33, yf = 10;
@@ -399,16 +403,19 @@ void presentacion() {
 
 		switch (op) {
 		case 1:
+			inicio.stop();
 			seleccionarSound();
 			sound2.play();
 			mantenerJuego(position);
 			break;
 		case 2:
+			inicio.stop();
 			seleccionarSound();
 			sound2.play();
 			mantener1VS1(position, position2);
 			break;
 		case 3:
+			inicio.stop();
 			seleccionarSound();
 			sound2.play();
 			mantenerBoss(position);
@@ -447,8 +454,10 @@ void mantenerJuego(int position[][width][2]) {
 		aparecerTubos(positionTubo, posicionX, posicionY, contador);
 		if (contador != 0) {
 			validacionTubo(op, positionTubo, position, a, c);
-			if (a == true) // si cambia a true en validacionTubos, se llama a si misma
+			if (a == true) {// si cambia a true en validacionTubos, se llama a si misma
+				profe.stop();
 				return mantenerJuego(position);
+			}
 		}
 		contadorTubos(positionTubo, position, contador1, contador, c, x);
 	} while (op != 'q');
@@ -493,14 +502,18 @@ void mantener1VS1(int jugador1[][width][2], int jugador2[][width][2]) { // -----
 				if (derrota1 == 0) {
 					c1 = 76, c2 = 34;
 					pantallaDerrota1vs1(op, jugador1, c1, c2, b);
-					if (b == true)
+					if (b == true) {
+						versus.stop();
 						return mantener1VS1(jugador1, jugador2);
+					}
 				}
 				else {
 					c1 = 39, c2 = 25;
 					pantallaDerrota1vs1(po, jugador2, c1, c2, b);
-					if (b == true)
+					if (b == true) {
+						versus.stop();
 						return mantener1VS1(jugador1, jugador2);
+					}
 				}
 			}
 		}
@@ -566,15 +579,18 @@ void mantenerBoss(int position[][width][2]) {
 				cambios = 0;
 			}
 			moverMuro(muro, contMuro, position, op, a);
-			if (a == true) // en caso choques con un muro
+			if (a == true) {// en caso choques con un muro
+				boss.stop();
 				return mantenerBoss(position);
+			}
 		}
 		limpiarRegion(52, 0, 52 + 7, 32);
 		balas(positionBala, contBala);
 		validacionBalas(positionBala, position, contBala, op, a);
-		if (a == true) // en caso choques con una bala
+		if (a == true) {// en caso choques con una bala
+			boss.stop();
 			return mantenerBoss(position);
-
+		}
 		cambios++;
 	} while (op != 'q');
 	boss.stop();
