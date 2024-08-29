@@ -248,7 +248,7 @@ void gotoxy(int x, int y);
 void imagenPaja(int pos[][width][2], char opMov, int& xDash, int& yDash, int& xDash2, int& yDash2, bool& dash1, bool& dash2);
 void limpiarImagenPaja(int pos[][width][2]);
 void cambiarPosicion(int position[][width][2], char op);
-int mantenerJuego(int position[][width][2]);
+void mantenerJuego(int position[][width][2]);
 void nuevaPosicion(char& op);
 void caidaSubidaIncremento(char& op);
 void piso();
@@ -422,11 +422,11 @@ void presentacion() {
 	} while (op != 4);
 }
 
-int mantenerJuego(int position[][width][2]) {
+void mantenerJuego(int position[][width][2]) {
 	char op = 0;
 	bool x = true;
 	bool dash1 = false, dash2 = false;
-	bool a = false;
+	bool a = false; // valor para q se llame a si misma
 	int xDash = 0, yDash = 0, xDash2 = 0, yDash2 = 0;
 	int cDash1 = 0, cDash2 = 0;
 	int pisoMov = 1;
@@ -575,8 +575,8 @@ void crearMuro(int muro[][2], int& co, int posXboss, int& posYboss, int aumento)
 	muro[co][0] = posXboss;
 	muro[co][1] = posYboss + aumento;
 	co++;
+	limpiarRegion(52 + 69, 0, 52 + 99, posYboss + 20);
 	tpBOSS(posYboss, aumento);
-	//limpiarRegion(posXboss + 13, posYboss + 7, posXboss + 33, posYboss + aumento - 1);
 }
 void moverMuro(int muro[][2], int& co, int position[][width][2], char& op, bool& a) {
 	bool b = false;
