@@ -1411,6 +1411,7 @@ void showImage(int pos[][width][2], char opMov, bool& e, int& xDash, int& yDash)
 		gotoxy(pos[2][0][0], pos[2][0][1]); setColor(39, 80); cout << "▀██"; setColor(25, 80); cout << "████"; setColor(202, 208); cout << "▄▄▄";
 	}
 	else if (opMov == 'd') {
+		gotoxy(pos[0][0][0], pos[0][0][1]); setColor(25, 80); cout << "      "; setColor(15, 80); cout << "  ";
 		gotoxy(pos[1][0][0] - 10, pos[1][0][1]); setColor(15, 80); cout << "▄▄▄▄  ▄▄";
 		gotoxy(pos[2][0][0] - 9, pos[2][0][1]); setColor(15, 80); cout << "   ▄ ▄▄";
 
