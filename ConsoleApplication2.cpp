@@ -16,17 +16,13 @@
 
 using namespace std;
 // -------------------------------------------------------- COSAS DE LA CONSOLA Y SU VISUALIZACION ------------------------------------------------------------------------
-void reproducirMusica(const string& rutaCancion, sf::Music& music) {
-	do {
-		if (!music.openFromFile(rutaCancion)) {
-			return; /*error de carga*/
-		}
-		music.play();
-		while (music.getStatus() == sf::Music::Playing) {
-			/*mantiene la canción en ejecución*/
-		}
-	} while (music.getStatus() == sf::Music::Stopped);
-	/*una vez que termine la canción va a repetir*/
+void reproducirMusic(const std::string& rutaCancion, sf::Music& musica) {
+	if (!musica.openFromFile(rutaCancion)) {
+		std::cerr << "Error al cargar el archivo de música." << std::endl;
+		return;
+	}
+	musica.setLoop(true); // Reproduce la música en bucle
+	musica.play();
 }
 
 sf::SoundBuffer buffer;
@@ -34,6 +30,9 @@ sf::Sound sound;
 
 sf::SoundBuffer buffer2;
 sf::Sound sound2;
+
+sf::SoundBuffer buffer3;
+sf::Sound sound3;
 
 void saltoSound() {
 	if (!buffer.loadFromFile("salto.ogg")) {
@@ -99,6 +98,15 @@ void flechaSound() {
 	}
 	sound.setBuffer(buffer);
 }
+
+void muroSound() {
+	if (!buffer.loadFromFile("muro.ogg")) {
+		cerr << "Error al cargar el archivo de sonido" << endl;
+		return;
+	}
+	sound3.setBuffer(buffer);
+}
+
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 void OcultarCursor() {
 	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -305,23 +313,12 @@ void validacionTubo(char& op, int positionTubo[][4][2], int position[3][width][2
 void contadorTubos(int positionTubo[][4][2], int position[][width][2], int& contador1, int contador, int& c, bool& x);
 // void mostrarNum(int k);
 int main() {
-	string rutaCancion = "profeSong.ogg";
-	sf::Music profe;
-	sf::SoundBuffer buffer;
-	//creamos un hilo
-	thread hiloMusica(reproducirMusica, rutaCancion, std::ref(profe));
-
 	setConsoleFullScreen();
 	SetConsoleOutputCP(CP_UTF8);
 	OcultarCursor();
-	
 	presentacion();
-
-	// cierra la consola
 	HWND hWnd = GetConsoleWindow();
 	PostMessage(hWnd, WM_CLOSE, 0, 0);
-
-	hiloMusica.join();
 	return 0;
 }
 
@@ -421,6 +418,9 @@ void presentacion() {
 }
 
 void mantenerJuego(int position[][width][2]) {
+	string rutaCancion = "profeSong.ogg";
+	sf::Music profe;
+	thread hiloMusica(reproducirMusic, rutaCancion, ref(profe));
 	char op = 0;
 	bool x = true;
 	bool dash1 = false, dash2 = false;
@@ -452,10 +452,15 @@ void mantenerJuego(int position[][width][2]) {
 		}
 		contadorTubos(positionTubo, position, contador1, contador, c, x);
 	} while (op != 'q');
+	profe.stop(); // Opcional: Asegúrese de que la música se detenga.
+	hiloMusica.join();
 }
 
 //falta poner la anim de los pajaros para el 1 vs 1
 void mantener1VS1(int jugador1[][width][2], int jugador2[][width][2]) { // -------------------------------- 1 vs 1
+	string rutaCancion = "1vs1.ogg";
+	sf::Music versus;
+	thread hiloMusica(reproducirMusic, rutaCancion, ref(versus));
 	char op, po;
 	bool x = true, e = false;
 	bool b = false;
@@ -501,9 +506,14 @@ void mantener1VS1(int jugador1[][width][2], int jugador2[][width][2]) { // -----
 		}
 		contadorTubos(positionTubo, jugador1, contador1, contador, c, x);
 	} while (po != 'q' && op != 'q');
+	versus.stop(); // Opcional: Asegúrese de que la música se detenga.
+	hiloMusica.join();
 }
 
 void mantenerBoss(int position[][width][2]) {
+	string rutaCancion = "Boss.ogg";
+	sf::Music boss;
+	thread hiloMusica(reproducirMusic, rutaCancion, ref(boss));
 	char op = 0;
 	bool a = false;
 	bool dash1 = false, dash2 = false;
@@ -567,8 +577,12 @@ void mantenerBoss(int position[][width][2]) {
 
 		cambios++;
 	} while (op != 'q');
+	boss.stop();
+	hiloMusica.join();
 }
 void crearMuro(int muro[][2], int& co, int posXboss, int& posYboss, int aumento) {
+	muroSound();
+	sound3.play();
 	muro[co][0] = posXboss;
 	muro[co][1] = posYboss + aumento;
 	co++;
